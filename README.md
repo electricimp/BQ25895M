@@ -192,8 +192,24 @@ Integer — The battery voltage in milli volts.
 local voltage = batteryCharger.getSystemVoltage();
 server.log("Voltage: " + voltage + "mV");
 ```
-
 ### getChargingCurrent() ###
+
+Returns the measured current going to the battery 
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+Integer — The charging current in milli Amps.
+
+#### Example ####
+
+```squirrel
+local current = batteryCharger.getChargingCurrent();
+server.log("Current: " + current + "mA");
+```
+### getChargingStatus() ###
 
  Returns the charging status
 
@@ -243,6 +259,6 @@ None.
 #### Example ####
 
 ```squirrel
-local chargingStatus = batteryCharger.getChargingStatus();
-server.log("Status: " + chargingStatus);
+batteryCharger.setDefaults();
+
 ```
