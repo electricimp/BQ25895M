@@ -134,5 +134,115 @@ Integer — The voltage in milli volts.
 #### Example ####
 
 ```squirrel
-batteryCharger.getChargeVoltage;
-// Sets the fast charge current limit to 5056mA
+local voltage = batteryCharger.getChargeVoltage();
+server.log("Voltage: " + voltage + "mV");
+```
+
+### getBatteryVoltage() ###
+
+Returns the current battery voltage based on the internal ADC conversion.
+
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+Integer — The battery voltage in milli volts.
+
+#### Example ####
+
+```squirrel
+local voltage = batteryCharger.getBatteryVoltage();
+server.log("Voltage: " + voltage + "mV");
+```
+### getVBUSVoltage() ###
+
+Returns the VBUS voltage based on the ADC conversion, this is the input voltage
+
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+Integer — The battery voltage in milli volts.
+
+#### Example ####
+
+```squirrel
+local voltage = batteryCharger.getVBUSVoltage();
+server.log("Voltage: " + voltage + "mV");
+```
+### getSystemVoltage() ###
+
+Returns the system voltage based on the ADC conversion, this the output voltage which can be used to power other chips in your application
+
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+Integer — The battery voltage in milli volts.
+
+#### Example ####
+
+```squirrel
+local voltage = batteryCharger.getSystemVoltage();
+server.log("Voltage: " + voltage + "mV");
+```
+
+### getChargingCurrent() ###
+
+ Returns the charging status
+
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+String — Not Charging, Pre-charge, Fast Charging, Charge Termination Good
+
+#### Example ####
+
+```squirrel
+local chargingStatus = batteryCharger.getChargingStatus();
+server.log("Status: " + chargingStatus);
+```
+### getChargerFaults() ###
+
+ Returns the possible charger faults
+
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+Array —  [WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT]
+
+#### Example ####
+
+```squirrel
+local chargingStatus = batteryCharger.getChargingStatus();
+server.log("Status: " + chargingStatus);
+```
+### setDefaults() ###
+
+Restores the devices default settings
+#### Parameters ####
+
+None.
+
+#### Return Value ####
+
+None.
+
+#### Example ####
+
+```squirrel
+local chargingStatus = batteryCharger.getChargingStatus();
+server.log("Status: " + chargingStatus);
+```
