@@ -32,58 +32,45 @@ class BQ25895M {
     _addr = null;
 
     constructor(i2c, addr=0x6a<<1){
-        
         _i2c = i2c;
         _addr = addr;
-        
     }
     
     //PUBLIC METHODS
     
     // Initialize battery charger configuration registers 
     function initCharger(){
-        
         _i2c.write(0x6a<<1, "\x02\xf3"); // Enable ADC
         _i2c.write(0x6a<<1, "\x03\x3a"); // Enable charger and set defaults
         _i2c.write(0x6a<<1, "\x07\x8d"); // Set defaults
-        
-        
-        
     }
     
     // Set the enable charging bit, charging will happen automatically
     function enableCharging(){
-        
         local rd = _getReg(BQ25895M_REG03);
         rd = rd | (1 << 4); // set CHG_CONFIG bit
         
         _setReg(BQ25895M_REG03, rd);
-        
     } 
      
     // Clear the enable charging bit, device will not charge until enableCharging() is called again
     function disableCharging(){
-        
         local rd = _getReg(BQ25895M_REG03);
         rd = rd & ~(1<<4); // clear CHG_CONFIG bits
         
         _setReg(BQ25895M_REG03, rd);
-        
     } 
     
     // Returns the target battery voltage
     function getChargeVoltage(){
-        
         local rd = _getReg(BQ25895M_REG06);
         local ChrgVlim = ((rd>>2)*16)+3840;
 
         return ChrgVlim;
-        
     }
     
     // Set target battery voltage
     function setChargeVoltage(VREG){ 
-        
         // Check that input is within accepted range
         if (VREG < 3.840) VREG = 3.840;
         else if (VREG > 4.608) VREG = 4.608;
@@ -93,12 +80,10 @@ class BQ25895M {
         rd = rd | (0xFC & ((((VREG*1000) - 3840)/16).tointeger()) << 2);
         
         _setReg(BQ25895M_REG06, rd);
-        
     }
 
     // Set fast charge current
     function setChargeCurrent(ICHG){
-        
         // Check that input is within accepted range
         if (ICHG < 0) ICHG = 0;
         else if (ICHG > 5056) ICHG = 5056;
@@ -108,24 +93,20 @@ class BQ25895M {
         rd = rd | (0x7F & ICHG/64); // set ILIM
     
         _setReg(BQ25895M_REG04, rd);
-        
     }
     
     // Returns the battery voltage based on the ADC conversion
     function getBatteryVoltage(){
-        
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG0E);
         local BATV =(2304+(20*(rd&0x7f)));
         
         return BATV;
-        
     }
      
     // Returns the VBUS voltage based on the ADC conversion, this is the input voltage
     function getVBUSVoltage(){ 
-        
         _convStart(); // Kick ADC
 
         local rd = _getReg(BQ25895M_REG11);
@@ -136,19 +117,16 @@ class BQ25895M {
     
     // Returns the system voltage based on the ADC conversion
     function getSystemVoltage(){
-    
         _convStart(); // Kick ADC
     
         local rd = _getReg(BQ25895M_REG0F);
         local SYSV = (2304+(20*(rd&0x7f)));
         
         return SYSV;
-        
     }
 
     // Returns the measured charge current based on the ADC conversion
     function getChargingCurrent(){
-        
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG12);
@@ -159,7 +137,6 @@ class BQ25895M {
     
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus(){
-        
         local rd = _getReg(BQ25895M_REG0B)
         rd = rd & 0x18; 
         
@@ -179,16 +156,13 @@ class BQ25895M {
             case 0x18:
                 mode = "Charge Termination Done";
                 break;
-
         }
         
         return mode;
-        
     }
     
     // Returns the possible charger faults in an array: WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT
     function getChargerFaults(){
-    
         local rd = _getReg(BQ25895M_REG0C);
 
         local WATCHDOG_FAULT = rd >> 7;
@@ -200,16 +174,13 @@ class BQ25895M {
         local FAULTS = [WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT];
         
         return FAULTS;
-        
     }
     
     // Restore default device settings
     function setDefaults(){
-          
         _setRegBit(BQ25895M_REG14, 7, 1); // Set reset bit
         imp.sleep(1);
         _setRegBit(BQ25895M_REG14, 7, 0); // Clear reset bit
-        
     }
     
      //-------------------- PRIVATE METHODS --------------------//
