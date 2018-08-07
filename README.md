@@ -3,7 +3,7 @@ The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch mode bat
 
 ## Class Usage ##
 
-### Constructor: BQ25895M(*i2cBus, [i2cAddress]*) ###
+### Constructor: BQ25895M(*i2cBus [,i2cAddress]*) ###
 The class’ constructor takes one required parameter (a configured imp I&sup2;C bus) and an optional parameter (the I&sup2;C address of the BQ25895M. The I&sup2;C address must be the address of your chip or an I&sup2;C error will be thrown.
 #### Parameters ####
 
