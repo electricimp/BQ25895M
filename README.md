@@ -242,8 +242,7 @@ Array —  [WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT]
 #### Example ####
 
 ```squirrel
-local chargingStatus = batteryCharger.getChargingStatus();
-server.log("Status: " + chargingStatus);
+local chargingStatus = batteryCharger.getChargerFaults();
 ```
 ### setDefaults() ###
 
