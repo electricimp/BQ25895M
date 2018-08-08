@@ -1,10 +1,8 @@
-// Device source code goes here
-
 //Registers Addresses
 const BQ25895M_REG00 = 0x00;
 const BQ25895M_REG01 = 0x01;
 const BQ25895M_REG02 = 0x02;
-const BQ25895M_REG03 = 0x03;
+const BQ25895M_REG03 = 0x03; 
 const BQ25895M_REG04 = 0x04;
 const BQ25895M_REG05 = 0x05;
 const BQ25895M_REG06 = 0x06;
@@ -23,6 +21,29 @@ const BQ25895M_REG12 = 0x12;
 const BQ25895M_REG13 = 0x13;
 const BQ25895M_REG14 = 0x14;
 
+// For getChargeStatus() output
+enum chargingStatus{
+    not_charging, // 0
+    pre_charge, // 1
+    fast_charging, // 2
+    charge_termination_done // 3
+}
+
+// For CHGR_FAULT in getChargingFaults output
+enum chargingFault{
+    normal, // 0
+    input_fault, // 1
+    thermal_shutdown, // 2
+    charge_safety_timer_expiration // 3
+}
+
+// For NTC_FAULT in getChargingFaults output
+enum ntcFault{
+   normal, // 0
+   ts_cold, // 1
+   ts_hot // 2
+}
+
 class BQ25895M {
     
     static VERSION = "1.0.0";
@@ -32,8 +53,10 @@ class BQ25895M {
     _addr = null;
 
     constructor(i2c, addr=0x6a<<1){
+        
         _i2c = i2c;
         _addr = addr;
+        
     }
     
     //PUBLIC METHODS
@@ -47,30 +70,27 @@ class BQ25895M {
     
     // Set the enable charging bit, charging will happen automatically
     function enableCharging(){
+        
         local rd = _getReg(BQ25895M_REG03);
         rd = rd | (1 << 4); // set CHG_CONFIG bit
         
         _setReg(BQ25895M_REG03, rd);
+        
     } 
      
     // Clear the enable charging bit, device will not charge until enableCharging() is called again
     function disableCharging(){
+        
         local rd = _getReg(BQ25895M_REG03);
         rd = rd & ~(1<<4); // clear CHG_CONFIG bits
         
         _setReg(BQ25895M_REG03, rd);
+        
     } 
-    
-    // Returns the target battery voltage
-    function getChargeVoltage(){
-        local rd = _getReg(BQ25895M_REG06);
-        local ChrgVlim = ((rd>>2)*16)+3840;
-
-        return ChrgVlim;
-    }
     
     // Set target battery voltage
     function setChargeVoltage(VREG){ 
+        
         // Check that input is within accepted range
         if (VREG < 3.840) VREG = 3.840;
         else if (VREG > 4.608) VREG = 4.608;
@@ -80,10 +100,12 @@ class BQ25895M {
         rd = rd | (0xFC & ((((VREG*1000) - 3840)/16).tointeger()) << 2);
         
         _setReg(BQ25895M_REG06, rd);
+        
     }
 
     // Set fast charge current
     function setChargeCurrent(ICHG){
+        
         // Check that input is within accepted range
         if (ICHG < 0) ICHG = 0;
         else if (ICHG > 5056) ICHG = 5056;
@@ -93,20 +115,34 @@ class BQ25895M {
         rd = rd | (0x7F & ICHG/64); // set ILIM
     
         _setReg(BQ25895M_REG04, rd);
+        
+    }
+    
+    // Returns the target battery voltage
+    function getChargeVoltage(){
+        
+        local rd = _getReg(BQ25895M_REG06);
+        local ChrgVlim = ((rd>>2)*16)+3840;
+
+        return ChrgVlim;
+        
     }
     
     // Returns the battery voltage based on the ADC conversion
     function getBatteryVoltage(){
+        
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG0E);
         local BATV =(2304+(20*(rd&0x7f)));
         
         return BATV;
+        
     }
      
     // Returns the VBUS voltage based on the ADC conversion, this is the input voltage
     function getVBUSVoltage(){ 
+        
         _convStart(); // Kick ADC
 
         local rd = _getReg(BQ25895M_REG11);
@@ -117,16 +153,19 @@ class BQ25895M {
     
     // Returns the system voltage based on the ADC conversion
     function getSystemVoltage(){
+    
         _convStart(); // Kick ADC
     
         local rd = _getReg(BQ25895M_REG0F);
         local SYSV = (2304+(20*(rd&0x7f)));
         
         return SYSV;
+        
     }
 
     // Returns the measured charge current based on the ADC conversion
     function getChargingCurrent(){
+        
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG12);
@@ -137,53 +176,95 @@ class BQ25895M {
     
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus(){
+        
+        local chargingStatus;
+        
         local rd = _getReg(BQ25895M_REG0B)
         rd = rd & 0x18; 
         
         local mode = "";
         
         switch(rd) {
-            
             case 0x00:
-                mode = "Not Charging";
+                mode = 0; // Not charging
                 break;
             case 0x08:
-                mode = "Pre-charge";
+                mode = 1; // Pre charge
                 break;
             case 0x10:
-                mode = "Fast Charging";
+                mode = 2; // Fast charging
                 break;
             case 0x18:
-                mode = "Charge Termination Done";
+                mode = 3; // Charge termination done
                 break;
         }
         
         return mode;
+        
     }
     
     // Returns the possible charger faults in an array: WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT
     function getChargerFaults(){
+        
+        local chargerFaults = {};
+        
         local rd = _getReg(BQ25895M_REG0C);
 
-        local WATCHDOG_FAULT = rd >> 7;
-        local BOOST_FAULT = rd >> 6;
-        local CHRG_FAULT = rd & 0x30;
-        local BAT_FAULT = rd >> 3;
-        local NTC_FAULT = rd & 0x07;
-         
-        local FAULTS = [WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT];
+        faults[WATCHDOG_FAULT] <- rd >> 7;
+        faults[BOOST_FAULT] <- rd >> 6;
         
-        return FAULTS;
+        local CHRG_FAULT = rd & 0x30;
+        local chargeFaultReason = 0;
+        
+         switch(CHRG_FAULT){
+            case 0x00:
+                chargeFaultReason = 0; // Normal
+                break; 
+            case 0x10:
+                chargeFaultReason = 1; // Input Fault
+                break;
+            case 0x20:
+                chargeFaultReason = 2; // Thermal Shutdown
+                break;
+            case 0x30:
+                chargeFaultReason = 3; // Charge Safety Timer Explanation
+                break;
+        }
+        
+        faults[CHRG_FAULT] <- chargeFaultReason;
+        faults[BAT_FAULT] <- rd >> 3;
+        
+        local NTC_FAULT = rd & 0x07;
+        local ntcFaultReason = 0;
+        
+        switch(NTC_FAULT){
+            case 0x00:
+                ntcFaultReason = 0; // Normal
+                break;
+            case 0x01:
+                ntcFaultReason = 1; // TS Cold
+                break;
+            case 0x02:
+                ntcFaultReason = 2; // TS Hot
+                break;
+        }
+        
+        faults[NTC_FAULT] <- ntcFaultReason;
+         
+        return chargerFaults;
+        
     }
     
     // Restore default device settings
     function setDefaults(){
+          
         _setRegBit(BQ25895M_REG14, 7, 1); // Set reset bit
         imp.sleep(1);
         _setRegBit(BQ25895M_REG14, 7, 0); // Clear reset bit
+        
     }
     
-     //-------------------- PRIVATE METHODS --------------------//
+    //-------------------- PRIVATE METHODS --------------------//
     
     function _getReg(reg) {
         local result = _i2c.read(_addr, reg.tochar(), 1);
