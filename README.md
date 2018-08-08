@@ -23,7 +23,7 @@ batteryCharger <- BQ25895M(i2c);
   
 ## Class Methods ##
 
-### initCharger( ) ###
+### initCharger() ###
 
 Initializes the battery charger with default settings. This method must be called before any other.
 
