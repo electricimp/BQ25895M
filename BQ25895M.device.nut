@@ -63,9 +63,11 @@ class BQ25895M {
     
     // Initialize battery charger configuration registers 
     function initCharger(){
-        _i2c.write(0x6a<<1, "\x02\xf3"); // Enable ADC
-        _i2c.write(0x6a<<1, "\x03\x3a"); // Enable charger and set defaults
-        _i2c.write(0x6a<<1, "\x07\x8d"); // Set defaults
+        
+        _setReg(BQ25895M_REG02, 0xf3); // Enable ADC
+        _setReg(BQ25895M_REG03, 0x3a); // Enable charger and set defaults
+        _setReg(BQ25895M_REG07, 0x8d); // Set defaults
+
     }
     
     // Set the enable charging bit, charging will happen automatically
