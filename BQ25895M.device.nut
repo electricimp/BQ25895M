@@ -206,12 +206,12 @@ class BQ25895M {
     // Returns the possible charger faults in an array: WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT
     function getChargerFaults(){
         
-        local chargerFaults = {};
+        local chargerFaults = {"WATCHDOG_FAULT" : 0, "BOOST_FAULT" : 0, "CHRG_FAULT" : 0, "BAT_FAULT" : 0, "NTC_FAULT" : 0};
         
         local rd = _getReg(BQ25895M_REG0C);
 
-        faults[WATCHDOG_FAULT] <- rd >> 7;
-        faults[BOOST_FAULT] <- rd >> 6;
+        chargerFaults.WATCHDOG_FAULT <- rd >> 7;
+        chargerFaults.BOOST_FAULT <- rd >> 6;
         
         local CHRG_FAULT = rd & 0x30;
         local chargeFaultReason = 0;
@@ -231,8 +231,8 @@ class BQ25895M {
                 break;
         }
         
-        faults[CHRG_FAULT] <- chargeFaultReason;
-        faults[BAT_FAULT] <- rd >> 3;
+        chargerFaults.CHRG_FAULT <- chargeFaultReason;
+        chargerFaults.BAT_FAULT <- rd >> 3;
         
         local NTC_FAULT = rd & 0x07;
         local ntcFaultReason = 0;
@@ -249,7 +249,7 @@ class BQ25895M {
                 break;
         }
         
-        faults[NTC_FAULT] <- ntcFaultReason;
+        chargerFaults.NTC_FAULT <- ntcFaultReason;
          
         return chargerFaults;
         
