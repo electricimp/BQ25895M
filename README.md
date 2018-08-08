@@ -243,8 +243,14 @@ server.log("Status: " + chargingStatus);
 None.
 
 #### Return Value ####
-
-Table —  {WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT*, BAT_FAULT, NTC_FAULT*}
+Table &mdash; the possible charger faults
+| Fault | Type | Description |
+| --- | --- | --- |
+| *Watchdog Fault* | Bool | `true` if watchdog timer has expired|
+| *Boost Fault* | Bool | `true` if VBUS overloaded in OTG, VBUS OVP, or battery is too low  |
+| *Chrg Fault* | Enum | *enumerated type |
+| *Batt Fault* | Bool| `true` if VBAT > VBATOVP |
+| *NTC Fault* | Enum | *enumerated type |
 
 *CHRG_FAULT has an enumerated type to match its output.
 ```squirrel
