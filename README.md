@@ -219,8 +219,15 @@ None.
 
 #### Return Value ####
 
-String — Not Charging, Pre-charge, Fast Charging, Charge Termination Good
-
+Integer — Not Charging = 0,  Pre-charge = 1, Fast Charging = 2, Charge Termination Good = 3
+```squirrel
+enum chargingStatus{
+    not_charging, // 0
+    pre_charge, // 1
+    fast_charging, // 2
+    charge_termination_done // 3
+}
+```
 #### Example ####
 
 ```squirrel
@@ -237,7 +244,25 @@ None.
 
 #### Return Value ####
 
-Array —  [WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT]
+Table —  {WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT*, BAT_FAULT, NTC_FAULT*}
+
+*CHRG_FAULT has an enumerated type to match its output.
+```squirrel
+enum chargingFault{
+    normal, // 0
+    input_fault, // 1
+    thermal_shutdown, // 2
+    charge_safety_timer_expiration // 3
+}
+```
+*NTC_FAULT has an enumerated type to match its output.
+```squirrel
+enum ntcFault{
+   normal, // 0
+   ts_cold, // 1
+   ts_hot // 2
+}
+```
 
 #### Example ####
 
