@@ -284,5 +284,4 @@ None.
 
 ```squirrel
 batteryCharger.setDefaults();
-
 ```
