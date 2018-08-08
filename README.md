@@ -244,6 +244,7 @@ None.
 
 #### Return Value ####
 Table &mdash; the possible charger faults
+
 | Fault | Type | Description |
 | --- | --- | --- |
 | *Watchdog Fault* | Bool | `true` if watchdog timer has expired|
