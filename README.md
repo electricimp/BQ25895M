@@ -23,7 +23,7 @@ batteryCharger <- BQ25895M(i2c);
   
 ## Class Methods ##
 
-### initCharger( ) ###
+### setDefaults( ) ###
 
 Initializes the battery charger with default settings. This method must be called before any other.
 
@@ -95,7 +95,7 @@ None.
 batteryCharger.setChargeVoltage(4200);
 // Sets the charge voltage to 4200mV
 ```
-### setChargeVoltage(*volts*) ###
+### setChargeVoltage(*milliVolts*) ###
 
 This method sets the desired battery voltage that the device should charge to.
 
@@ -221,18 +221,31 @@ None.
 
 Integer — Not Charging = 0,  Pre-charge = 1, Fast Charging = 2, Charge Termination Good = 3
 ```squirrel
-enum chargingStatus{
-    not_charging, // 0
-    pre_charge, // 1
-    fast_charging, // 2
-    charge_termination_done // 3
+enum BQ25895M_CHARGING_STATUS{
+    NOT_CHARGING = 0x00, // 0
+    PRE_CHARGE = 0x08, // 1
+    FAST_CHARGING = 0x10, // 2
+    CHARGE_TERMINATION_DONE = 0x18 // 3
 }
 ```
 #### Example ####
 
 ```squirrel
-local chargingStatus = batteryCharger.getChargingStatus();
-server.log("Status: " + chargingStatus);
+local status = charger. getChargingStatus();  
+switch(status) {  
+	case BQ25895M_CHARGING_STATUS.NOT_CHARGING :  
+	// Do something  
+	break;  
+	case BQ25895M_CHARGING_STATUS.PRE_CHARGE :  
+	// Do something  
+	break;  
+	case BQ25895M_CHARGING_STATUS.FAST_CHARGING :  
+	// Do something  
+	break;  
+	case BQ25895M_CHARGING_STATUS.CHARGE_TERMINATION_DONE :  
+	// Do something  
+break;  
+}
 ```
 ### getChargerFaults() ###
 
@@ -255,19 +268,19 @@ Table &mdash; the possible charger faults
 
 *CHRG_FAULT has an enumerated type to match its output.
 ```squirrel
-enum chargingFault{
-    normal, // 0
-    input_fault, // 1
-    thermal_shutdown, // 2
-    charge_safety_timer_expiration // 3
+enum BQ25895M_CHARGING_FAULT{
+    NORMAL, // 0
+    INPUT_FAULT, // 1
+    THERMAL_SHUTDOWN, // 2
+    CHARGE_SAFETY_TIMER_EXPIRATION // 3
 }
 ```
 *NTC_FAULT has an enumerated type to match its output.
 ```squirrel
-enum ntcFault{
-   normal, // 0
-   ts_cold, // 1
-   ts_hot // 2
+enum BQ25895M_NTC_FAULT{
+    NORMAL, // 0
+    TS_COLD, // 1
+    TS_HOT // 2
 }
 ```
 
@@ -276,7 +289,7 @@ enum ntcFault{
 ```squirrel
 local chargingStatus = batteryCharger.getChargerFaults();
 ```
-### setDefaults() ###
+### reset() ###
 
 Restores the devices default settings
 #### Parameters ####

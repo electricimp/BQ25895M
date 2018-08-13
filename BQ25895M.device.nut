@@ -22,26 +22,26 @@ const BQ25895M_REG13 = 0x13;
 const BQ25895M_REG14 = 0x14;
 
 // For getChargeStatus() output
-enum chargingStatus{
-    not_charging, // 0
-    pre_charge, // 1
-    fast_charging, // 2
-    charge_termination_done // 3
+enum BQ25895M_CHARGING_STATUS{
+    NOT_CHARGING = 0x00, // 0
+    PRE_CHARGE = 0x08, // 1
+    FAST_CHARGING = 0x10, // 2
+    CHARGE_TERMINATION_DONE = 0x18 // 3
 }
 
 // For CHGR_FAULT in getChargingFaults output
-enum chargingFault{
-    normal, // 0
-    input_fault, // 1
-    thermal_shutdown, // 2
-    charge_safety_timer_expiration // 3
+enum BQ25895M_CHARGING_FAULT{
+    NORMAL, // 0
+    INPUT_FAULT, // 1
+    THERMAL_SHUTDOWN, // 2
+    CHARGE_SAFETY_TIMER_EXPIRATION // 3
 }
 
 // For NTC_FAULT in getChargingFaults output
-enum ntcFault{
-   normal, // 0
-   ts_cold, // 1
-   ts_hot // 2
+enum BQ25895M_NTC_FAULT{
+    NORMAL, // 0
+    TS_COLD, // 1
+    TS_HOT // 2
 }
 
 class BQ25895M {
@@ -52,7 +52,7 @@ class BQ25895M {
     _i2c = null;
     _addr = null;
 
-    constructor(i2c, addr=0x6a<<1){
+    constructor(i2c, addr=0xD4){
         
         _i2c = i2c;
         _addr = addr;
@@ -62,7 +62,7 @@ class BQ25895M {
     //PUBLIC METHODS
     
     // Initialize battery charger configuration registers 
-    function initCharger(){
+    function setDefaults(){
         
         _setReg(BQ25895M_REG02, 0xf3); // Enable ADC
         _setReg(BQ25895M_REG03, 0x3a); // Enable charger and set defaults
@@ -84,37 +84,40 @@ class BQ25895M {
     function disableCharging(){
         
         local rd = _getReg(BQ25895M_REG03);
-        rd = rd & ~(1<<4); // clear CHG_CONFIG bits
+        rd = rd & ~(1 << 4); // clear CHG_CONFIG bits
         
         _setReg(BQ25895M_REG03, rd);
         
     } 
     
     // Set target battery voltage
-    function setChargeVoltage(VREG){ 
+    function setChargeVoltage(vreg){ 
         
         // Check that input is within accepted range
-        if (VREG < 3.840) VREG = 3.840;
-        else if (VREG > 4.608) VREG = 4.608;
+        if (VREG < 3840) vreg = 3840; // minimum charge voltage from device datasheet
+        else if (VREG > 4608) vreg = 4608; // maximum charge voltage from device datasheet
         
         local rd = _getReg(BQ25895M_REG06);
         rd = rd & ~(0xFC); // clear current limit bits
-        rd = rd | (0xFC & ((((VREG*1000) - 3840)/16).tointeger()) << 2);
+        rd = rd | (0xFC & (((vreg - 3840) / 16).tointeger()) << 2); // 3840mV is the default offset, 16mV is the resolution
         
         _setReg(BQ25895M_REG06, rd);
         
     }
 
     // Set fast charge current
-    function setChargeCurrent(ICHG){
+    function setChargeCurrent(iChg){
         
         // Check that input is within accepted range
-        if (ICHG < 0) ICHG = 0;
-        else if (ICHG > 5056) ICHG = 5056;
+        if (ichg < 0){ // charge current must be greater than 0
+            ichg = 0;
+        } else if (iChg > 5056){ // max charge current from device datasheet
+            sichg = 5056;
+        }
         
         local rd = _getReg(BQ25895M_REG04);
         rd = rd & ~(0x7F); // clear current limit bits
-        rd = rd | (0x7F & ICHG/64); // set ILIM
+        rd = rd | (0x7F & iChg / 64); // 64mA is the resolution
     
         _setReg(BQ25895M_REG04, rd);
         
@@ -124,9 +127,9 @@ class BQ25895M {
     function getChargeVoltage(){
         
         local rd = _getReg(BQ25895M_REG06);
-        local ChrgVlim = ((rd>>2)*16)+3840;
+        local chrgVlim = ((rd >> 2) * 16) + 3840; // 16mV is the resolution, 3840mV must be added as the offset
 
-        return ChrgVlim;
+        return chrgVlim;
         
     }
     
@@ -136,9 +139,9 @@ class BQ25895M {
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG0E);
-        local BATV =(2304+(20*(rd&0x7f)));
+        local battV =(2304 + (20 * (rd & 0x7f))); // 2304mV must be added as the offset, 20mV is the resolution
         
-        return BATV;
+        return battV;
         
     }
      
@@ -148,9 +151,9 @@ class BQ25895M {
         _convStart(); // Kick ADC
 
         local rd = _getReg(BQ25895M_REG11);
-        local VBUSV = (2600+(100*(rd&0x7f)))
+        local vBusV = (2600 + (100 * (rd & 0x7f))) // 2600mV must be added as the offset, 100mV is the resolution
         
-        return VBUSV; 
+        return vBusV; 
     }
     
     // Returns the system voltage based on the ADC conversion
@@ -159,9 +162,9 @@ class BQ25895M {
         _convStart(); // Kick ADC
     
         local rd = _getReg(BQ25895M_REG0F);
-        local SYSV = (2304+(20*(rd&0x7f)));
+        local sysV = (2304 + (20 * (rd & 0x7f))); // 2304mV must be added as the offset, 20mV is the resolution
         
-        return SYSV;
+        return sysV;
         
     }
 
@@ -171,94 +174,40 @@ class BQ25895M {
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG12);
-        local ICHGR = (50*(rd&0x7f))
+        local iChgr = (50 * (rd & 0x7f)); // 50mA is the resolution
         
-        return ICHGR;  
+        return iChgr;  
     }
     
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus(){
-        
         local chargingStatus;
         
         local rd = _getReg(BQ25895M_REG0B)
         rd = rd & 0x18; 
         
-        local mode = "";
-        
-        switch(rd) {
-            case 0x00:
-                mode = 0; // Not charging
-                break;
-            case 0x08:
-                mode = 1; // Pre charge
-                break;
-            case 0x10:
-                mode = 2; // Fast charging
-                break;
-            case 0x18:
-                mode = 3; // Charge termination done
-                break;
-        }
-        
-        return mode;
-        
+        return rd;
     }
     
-    // Returns the possible charger faults in an array: WATCHDOG_FAULT, BOOST_FAULT, CHRG_FAULT, BAT_FAULT, NTC_FAULT
+    // Returns the possible charger faults in an array: watchdogFault, boostFault, chrgFault, battFault, ntcFault
     function getChargerFaults(){
         
-        local chargerFaults = {"WATCHDOG_FAULT" : 0, "BOOST_FAULT" : 0, "CHRG_FAULT" : 0, "BAT_FAULT" : 0, "NTC_FAULT" : 0};
+        local chargerFaults = {"watchdogFault" : 0, "boostFault" : 0, "chrgFault" : 0, "battFault" : 0, "ntcFault" : 0};
         
         local rd = _getReg(BQ25895M_REG0C);
 
-        chargerFaults.WATCHDOG_FAULT <- rd >> 7;
-        chargerFaults.BOOST_FAULT <- rd >> 6;
+        chargerFaults.watchdogFault <- rd >> 7;
+        chargerFaults.boostFault <- rd >> 6;
+        chargerFaults.chrgFault <- rd & 0x30;
+        chargerFaults.battFault <- rd >> 3;
+        chargerFaults.ntcFault <- rd & 0x07;
         
-        local CHRG_FAULT = rd & 0x30;
-        local chargeFaultReason = 0;
-        
-         switch(CHRG_FAULT){
-            case 0x00:
-                chargeFaultReason = 0; // Normal
-                break; 
-            case 0x10:
-                chargeFaultReason = 1; // Input Fault
-                break;
-            case 0x20:
-                chargeFaultReason = 2; // Thermal Shutdown
-                break;
-            case 0x30:
-                chargeFaultReason = 3; // Charge Safety Timer Explanation
-                break;
-        }
-        
-        chargerFaults.CHRG_FAULT <- chargeFaultReason;
-        chargerFaults.BAT_FAULT <- rd >> 3;
-        
-        local NTC_FAULT = rd & 0x07;
-        local ntcFaultReason = 0;
-        
-        switch(NTC_FAULT){
-            case 0x00:
-                ntcFaultReason = 0; // Normal
-                break;
-            case 0x01:
-                ntcFaultReason = 1; // TS Cold
-                break;
-            case 0x02:
-                ntcFaultReason = 2; // TS Hot
-                break;
-        }
-        
-        chargerFaults.NTC_FAULT <- ntcFaultReason;
-         
         return chargerFaults;
         
     }
     
     // Restore default device settings
-    function setDefaults(){
+    function reset(){
           
         _setRegBit(BQ25895M_REG14, 7, 1); // Set reset bit
         imp.sleep(1);
@@ -269,22 +218,27 @@ class BQ25895M {
     //-------------------- PRIVATE METHODS --------------------//
     
     function _getReg(reg) {
+        
         local result = _i2c.read(_addr, reg.tochar(), 1);
         if (result == null) {
             throw "I2C read error: " + _i2c.readerror();
         }
         return result[0];
+        
     }
 
     function _setReg(reg, val) {
+        
         local result = _i2c.write(_addr, format("%c%c", reg, (val & 0xff)));
         if (result) {
             throw "I2C write error: " + result;
         }
         return result;
+        
     }
 
     function _setRegBit(reg, bit, state) {
+        
         local val = _getReg(reg);
         if (state == 0) {
             val = val & ~(0x01 << bit);
@@ -292,6 +246,7 @@ class BQ25895M {
             val = val | (0x01 << bit);
         }
         return _setReg(reg, val);
+        
     }
     
     function _convStart(){ // call before ADC conversion
