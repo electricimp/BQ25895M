@@ -25,7 +25,7 @@ batteryCharger <- BQ25895M(i2c);
 
 ### setDefaults( ) ###
 
-Initializes the battery charger with default settings. This method must be called before any other.
+Initializes the battery charger with default settings.
 
 #### Return Value ####
 
@@ -34,8 +34,8 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.initCharger();
 // Initializes charger with default settings
+batteryCharger.initCharger();
 ```
 
 ### enableCharging() ###
@@ -52,8 +52,8 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.enableCharging();
 // Enables charging
+batteryCharger.enableCharging();
 ```
 
 ### disableCharging() ###
@@ -71,8 +71,8 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.disableCharging();
 // Disables charging
+batteryCharger.disableCharging();
 ```
 ### setChargeCurrent(*milliAmps*) ###
 
@@ -83,7 +83,7 @@ The default fast charge current limit is 2048mA.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| *currentLimit* | Integer | Yes | The desired ce in milli Volts (3840 - 4608mV)|
+| *currentLimit* | Integer | Yes | The desired fast charge current limit in milli Amps (0 - 5056mA)
 
 #### Return Value ####
 
@@ -92,8 +92,8 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.setChargeVoltage(4200);
-// Sets the charge voltage to 4200mV
+// Sets the fast charge current limit to 5056mA
+batteryCharger.setCurrentLimit(5056);
 ```
 ### setChargeVoltage(*milliVolts*) ###
 
@@ -104,7 +104,7 @@ The default charge voltage is 4352 mV.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| *chargeVoltage* | Integer | Yes | The desired fast charge current limit in milli Aolts (0 - 5056mA)|
+| *chargeVoltage* | Integer | Yes | The desired charge voltage in milli Volts (3840 - 4608mV)|
 
 #### Return Value ####
 
@@ -113,8 +113,8 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.setCurrentLimit(5056);
-// Sets the fast charge current limit to 5056mA
+// Sets the charge voltage to 4200mV
+batteryCharger.setChargeVoltage(4200);
 ```
 
 
@@ -134,6 +134,7 @@ Integer — The voltage in milli volts.
 #### Example ####
 
 ```squirrel
+
 local voltage = batteryCharger.getChargeVoltage();
 server.log("Voltage: " + voltage + "mV");
 ```
@@ -234,17 +235,17 @@ enum BQ25895M_CHARGING_STATUS{
 local status = charger. getChargingStatus();  
 switch(status) {  
 	case BQ25895M_CHARGING_STATUS.NOT_CHARGING :  
-	// Do something  
-	break;  
+		// Do something  
+		break;  
 	case BQ25895M_CHARGING_STATUS.PRE_CHARGE :  
-	// Do something  
-	break;  
+		// Do something  
+		break;  
 	case BQ25895M_CHARGING_STATUS.FAST_CHARGING :  
-	// Do something  
-	break;  
+		// Do something  
+		break;  
 	case BQ25895M_CHARGING_STATUS.CHARGE_TERMINATION_DONE :  
-	// Do something  
-break;  
+		// Do something  
+		break;  
 }
 ```
 ### getChargerFaults() ###
