@@ -261,11 +261,11 @@ Table &mdash; the possible charger faults
 
 | Fault | Type | Description |
 | --- | --- | --- |
-| *Watchdog Fault* | Bool | `true` if watchdog timer has expired|
-| *Boost Fault* | Bool | `true` if VBUS overloaded in OTG, VBUS OVP, or battery is too low  |
-| *Chrg Fault* | Enum | *enumerated type |
-| *Batt Fault* | Bool| `true` if VBAT > VBATOVP |
-| *NTC Fault* | Enum | *enumerated type |
+| *watchdogFault* | Bool | `true` if watchdog timer has expired|
+| *boostFault* | Bool | `true` if VBUS overloaded in OTG, VBUS OVP, or battery is too low  |
+| *chrgFault* | Enum | *enumerated type |
+| *battFault* | Bool| `true` if VBAT > VBATOVP |
+| *ntcFault* | Enum | *enumerated type |
 
 *CHRG_FAULT has an enumerated type to match its output.
 ```squirrel
