@@ -198,9 +198,9 @@ class BQ25895M {
 
         chargerFaults.watchdogFault <- rd >> 7;
         chargerFaults.boostFault <- rd >> 6;
-        chargerFaults.chrgFault <- rd & 0x30;
+        chargerFaults.chrgFault <- rd & 0x30; // normal, input fault, thermal shutdown, charge safety timer expiration
         chargerFaults.battFault <- rd >> 3;
-        chargerFaults.ntcFault <- rd & 0x07;
+        chargerFaults.ntcFault <- rd & 0x07; // normal, TS cold, TS hot
         
         return chargerFaults;
         
@@ -210,7 +210,6 @@ class BQ25895M {
     function reset(){
           
         _setRegBit(BQ25895M_REG14, 7, 1); // Set reset bit
-        imp.sleep(1);
         _setRegBit(BQ25895M_REG14, 7, 0); // Clear reset bit
         
     }

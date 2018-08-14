@@ -1,6 +1,11 @@
 # BQ25895M #
 The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch mode battery charge management and system power path management device for single cell Li-Ion and Li-polymer batteries. It supports high input voltage fast charging and communicates over an I2C serial interface.
 
+  
+**To add this library to your project, add the following to the top of your device code:**
+
+`#require "BQ25895M.lib.nut:1.0.0"`
+
 ## Class Usage ##
 
 ### Constructor: BQ25895M(*i2cBus [,i2cAddress]*) ###
@@ -23,9 +28,12 @@ batteryCharger <- BQ25895M(i2c);
   
 ## Class Methods ##
 
-### setDefaults( ) ###
+### setDefaults() ###
 
 Initializes the battery charger with default settings.
+#### Parameters ####
+
+None.
 
 #### Return Value ####
 
@@ -35,7 +43,7 @@ None.
 
 ```squirrel
 // Initializes charger with default settings
-batteryCharger.initCharger();
+batteryCharger.setDefaults();
 ```
 
 ### enableCharging() ###
@@ -93,7 +101,7 @@ None.
 
 ```squirrel
 // Sets the fast charge current limit to 5056mA
-batteryCharger.setCurrentLimit(5056);
+batteryCharger.setChargeCurrent(5056);
 ```
 ### setChargeVoltage(*milliVolts*) ###
 
@@ -220,19 +228,19 @@ None.
 
 #### Return Value ####
 
-Integer — Not Charging = 0,  Pre-charge = 1, Fast Charging = 2, Charge Termination Good = 3
-```squirrel
-enum BQ25895M_CHARGING_STATUS{
-    NOT_CHARGING = 0x00, // 0
-    PRE_CHARGE = 0x08, // 1
-    FAST_CHARGING = 0x10, // 2
-    CHARGE_TERMINATION_DONE = 0x18 // 3
-}
-```
+Integer — see table below for supported values.
+
+| Charging Status Constant| Value | 
+| --- | --- | 
+| *BQ25895M_CHARGING_STATUS.NOT_CHARGING* | 0x00 | 
+| *BQ25895M_CHARGING_STATUS.PRE_CHARGE* | 0x08| 
+| *BQ25895M_CHARGING_STATUS.FAST_CHARGE* | 0x10|
+| *BQ25895M_CHARGING_STATUS.CHARGE_TERMINATION_DONE* | 0x18| 
+ 
 #### Example ####
 
 ```squirrel
-local status = charger. getChargingStatus();  
+local status = charger.getChargingStatus();  
 switch(status) {  
 	case BQ25895M_CHARGING_STATUS.NOT_CHARGING :  
 		// Do something  
@@ -263,32 +271,64 @@ Table &mdash; the possible charger faults
 | --- | --- | --- |
 | *watchdogFault* | Bool | `true` if watchdog timer has expired|
 | *boostFault* | Bool | `true` if VBUS overloaded in OTG, VBUS OVP, or battery is too low  |
-| *chrgFault* | Enum | *enumerated type |
+| *chrgFault* | Integer | see table below for possible values |
 | *battFault* | Bool| `true` if VBAT > VBATOVP |
-| *ntcFault* | Enum | *enumerated type |
+| *ntcFault* | Integer | see table below for possible values |
 
-*CHRG_FAULT has an enumerated type to match its output.
-```squirrel
-enum BQ25895M_CHARGING_FAULT{
-    NORMAL, // 0
-    INPUT_FAULT, // 1
-    THERMAL_SHUTDOWN, // 2
-    CHARGE_SAFETY_TIMER_EXPIRATION // 3
-}
-```
-*NTC_FAULT has an enumerated type to match its output.
-```squirrel
-enum BQ25895M_NTC_FAULT{
-    NORMAL, // 0
-    TS_COLD, // 1
-    TS_HOT // 2
-}
-```
+CHRG_FAULT has an enumerated type to match its output.
+
+| Charging Fault | Value 
+| --- | --- |
+| *BQ25895M_CHARGING_FAULT.NORMAL* | 0x00 | 
+| *BQ25895M_CHARGING_FAULT.INPUT_FAULT* | 0x01|
+| *BQ25895M_CHARGING_FAULT.THERMAL_SHUTDOWN* | 0x02|
+| *BQ25895M_CHARGING_FAULT.CHARGE_SAFETY_TIMER_EXPIRATION* | 0x03| 
+
+
+NTC_FAULT has an enumerated type to match its output.
+
+| NTC Fault| Value | 
+| --- | --- | 
+| *BQ25895M_NTC_FAULT.NORMAL* | 0x00 | 
+| *BQ25895M_NTC_FAULT.TS_COLD* | 0x01| 
+| *BQ25895M_NTC_FAULT.TS_HOT* | 0x02| 
 
 #### Example ####
 
 ```squirrel
-local chargingStatus = batteryCharger.getChargerFaults();
+local faults = batteryCharger.getChargerFaults();
+server.log("Watchdog Fault =  " + faults.watchdogFault);
+server.log("Boost Fault =  " + faults.boostFault);
+
+switch(faults) {  
+	case BQ25895M_CHARGING_FAULT.NORMAL:  
+		// Do something  
+		break;  
+	case BQ25895M_CHARGING_FAULT.INPUT_FAULT:  
+		// Do something  
+		break;  
+	case BQ25895M_CHARGING_FAULT.THERMAL_SHUTDOWN:  
+		// Do something  
+		break;  
+	case BQ25895M_CHARGING_FAULT.CHARGE_SAFETY_TIMER_EXPIRATION:  
+		// Do something  
+		break;  
+}
+
+server.log("Battery Fault =  " + faults.battFault);
+
+switch(faults) {  
+	case BQ25895M_NTC_FAULT.NORMAL:  
+		// Do something  
+		break;  
+	case BQ25895M_NTC_FAULT.TS_COLD:  
+		// Do something  
+		break;  
+	case BQ25895M_NTC_FAULT.TS_HOT:  
+		// Do something  
+		break;  
+
+
 ```
 ### reset() ###
 
@@ -304,5 +344,5 @@ None.
 #### Example ####
 
 ```squirrel
-batteryCharger.setDefaults();
+batteryCharger.reset();
 ```
