@@ -94,8 +94,8 @@ class BQ25895M {
     function setChargeVoltage(vreg){ 
         
         // Check that input is within accepted range
-        if (VREG < 3840) vreg = 3840; // minimum charge voltage from device datasheet
-        else if (VREG > 4608) vreg = 4608; // maximum charge voltage from device datasheet
+        if (vreg < 3840) vreg = 3840; // minimum charge voltage from device datasheet
+        else if (vreg > 4608) vreg = 4608; // maximum charge voltage from device datasheet
         
         local rd = _getReg(BQ25895M_REG06);
         rd = rd & ~(0xFC); // clear current limit bits
@@ -106,18 +106,18 @@ class BQ25895M {
     }
 
     // Set fast charge current
-    function setChargeCurrent(iChg){
+    function setChargeCurrent(ichg){
         
         // Check that input is within accepted range
         if (ichg < 0){ // charge current must be greater than 0
             ichg = 0;
-        } else if (iChg > 5056){ // max charge current from device datasheet
+        } else if (ichg > 5056){ // max charge current from device datasheet
             sichg = 5056;
         }
         
         local rd = _getReg(BQ25895M_REG04);
         rd = rd & ~(0x7F); // clear current limit bits
-        rd = rd | (0x7F & iChg / 64); // 64mA is the resolution
+        rd = rd | (0x7F & ichg / 64); // 64mA is the resolution
     
         _setReg(BQ25895M_REG04, rd);
         
@@ -179,6 +179,30 @@ class BQ25895M {
         return iChgr;  
     }
     
+    // Returns the measured temperature of the NTC under the battery
+    function getBatteryTemperature(){
+        
+        _convStart();
+        
+        local rd = _getReg(BQ25895M_REG10);
+        
+        if (typeof points == "boolean") {
+            _pointsPerRead = 10.0;
+            _highSide = points;
+        } else {
+            _pointsPerRead = points * 1.0;
+            _highSide = highSide;
+        }
+
+        _beta = b * 1.0;
+        _t0 = t0 * 1.0;
+    }
+        
+        local tspct = ((rd + 21) / 100) * 5;
+        
+        return tspct;
+        
+    }
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus(){
         local chargingStatus;
