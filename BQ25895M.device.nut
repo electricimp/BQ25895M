@@ -196,7 +196,7 @@ class BQ25895M {
 
         _beta = b * 1.0;
         _t0 = t0 * 1.0;
-    }
+    
         
         local tspct = ((rd + 21) / 100) * 5;
         
