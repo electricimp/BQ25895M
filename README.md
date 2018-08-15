@@ -300,7 +300,7 @@ local faults = batteryCharger.getChargerFaults();
 server.log("Watchdog Fault =  " + faults.watchdogFault);
 server.log("Boost Fault =  " + faults.boostFault);
 
-switch(faults) {  
+switch(faults.chrgFault) {  
 	case BQ25895M_CHARGING_FAULT.NORMAL:  
 		// Do something  
 		break;  
@@ -317,7 +317,7 @@ switch(faults) {
 
 server.log("Battery Fault =  " + faults.battFault);
 
-switch(faults) {  
+switch(faults.ntcFault) {  
 	case BQ25895M_NTC_FAULT.NORMAL:  
 		// Do something  
 		break;  
