@@ -276,11 +276,11 @@ Table &mdash; the possible charger faults
 | --- | --- | --- |
 | *watchdogFault* | Bool | `true` if watchdog timer has expired|
 | *boostFault* | Bool | `true` if VBUS overloaded in OTG, VBUS OVP, or battery is too low  |
-| *chrgFault* | Integer | see table below for possible values |
+| *chrgFault* | Integer | CHRG_FAULT has an enumerated type to match its output. See *Charging Fault* table below for possible values. |
 | *battFault* | Bool| `true` if VBAT > VBATOVP |
-| *ntcFault* | Integer | see table below for possible values |
+| *ntcFault* | Integer | NTC_FAULT has an enumerated type to match its output. See *NTC Fault* table below for possible values |
 
-CHRG_FAULT has an enumerated type to match its output.
+##### Charging Fault #####
 
 | Charging Fault | Value
 | --- | --- |
@@ -290,7 +290,7 @@ CHRG_FAULT has an enumerated type to match its output.
 | *BQ25895M_CHARGING_FAULT.CHARGE_SAFETY_TIMER_EXPIRATION* | 0x03|
 
 
-NTC_FAULT has an enumerated type to match its output.
+##### NTC FAULT #####
 
 | NTC Fault| Value |
 | --- | --- |
@@ -332,8 +332,7 @@ switch(faults.ntcFault) {
 	case BQ25895M_NTC_FAULT.TS_HOT:
 		// Do something
 		break;
-
-
+}
 ```
 
 ### reset() ###
