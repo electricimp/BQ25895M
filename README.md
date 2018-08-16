@@ -30,7 +30,7 @@ batteryCharger <- BQ25895M(i2c);
 
 ### setDefaults() ###
 
-Initializes the battery charger with default settings.
+Initializes the battery charger with default settings.   
 #### Parameters ####
 
 None.
@@ -144,8 +144,6 @@ None.
 // Sets the charge voltage to 4200mV
 batteryCharger.setChargeVoltage(4200);
 ```
-
-
 
 ### getChargeVoltage() ###
 
@@ -352,7 +350,7 @@ switch(faults.ntcFault) {
 ```
 ### reset() ###
 
-Restores the devices default settings
+Software reset which clears all register settings.
 #### Parameters ####
 
 None.
@@ -364,6 +362,7 @@ None.
 #### Example ####
 
 ```squirrel
+// Clears all register settings restoring to device defaults
 batteryCharger.reset();
 ```
 ## License ##
