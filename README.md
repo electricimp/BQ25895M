@@ -86,7 +86,7 @@ batteryCharger.disableCharging();
 
 This method sets the fast charge current limit.
 
-The default fast charge current limit is 1000mA.
+The default fast charge current limit is 1000mA if setDefaults() has been called.
 #### Parameters ####
 
 | Parameter | Type | Required | Description |
@@ -127,7 +127,7 @@ batteryCharger.setChargeCurrentOptimizer();
 
 This method sets the desired battery voltage that the device should charge to.
 
-The default charge voltage is 4200 mV.
+The default charge voltage is 4200 mV if setDefaults() has been called.
 #### Parameters ####
 
 | Parameter | Type | Required | Description |
