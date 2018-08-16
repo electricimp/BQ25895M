@@ -85,13 +85,10 @@ class BQ25895M {
     
     //PUBLIC METHODS
     
-    // Initialize battery charger configuration registers 
+    // Initialize battery charger with standard configuration
     function setDefaults(){
         
-        _setReg(BQ25895M_REG02, 0xf3); // Enable ADC
-        _setReg(BQ25895M_REG03, 0x3a); // Enable charger and s et defaults
-        _setReg(BQ25895M_REG07, 0x8d); // Set defaults
-        
+        _setReg(BQ25895M_REG03, 0x3a); // Enable charger and min system voltage
         setChargeVoltage(4200); // set default charge voltage to 4.2V
         setChargeCurrent(1000); // set default charge current limit to 1A
 
@@ -153,7 +150,6 @@ class BQ25895M {
     function setChargeCurrentOptimizer(){
         
         local rd = _getReg(BQ25895M_REG09);
-
         rd = rd | (1 << 7);
         
         _setReg(BQ25895M_REG09, rd);
@@ -215,7 +211,6 @@ class BQ25895M {
         
         return iChgr;  
     }
-    
     
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus(){

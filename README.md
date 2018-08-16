@@ -30,7 +30,7 @@ batteryCharger <- BQ25895M(i2c);
 
 ### setDefaults() ###
 
-Initializes the battery charger with default settings.   
+Initializes the battery charger with standard settings for battery charging. It is recommended that this function is called immediately after the constructor. Sets the default charge voltage to 4.2V and the default charge current limit to 1A. 
 #### Parameters ####
 
 None.
