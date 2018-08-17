@@ -284,7 +284,7 @@ class BQ25895M {
     
     function _convStart(){ // call before ADC conversion
         
-        _setRegBit(BQ25895M_REG03, 7, 1);
+        _setRegBit(BQ25895M_REG02, 7, 1);
           
     }
 } 
