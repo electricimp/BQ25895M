@@ -92,8 +92,10 @@ class BQ25895M {
     function configureCharger(voltage = null, current = null) {
 
         // Enable charger and min system voltage 
-        // Note: These are the register defaults
-        // Currently library only exposes enable/disable to user
+        // Note: This is the register default
+        // Currently library only exposes enable/disable for 
+        // user to set, so no parameters are used to configure
+        // and register defaults are used  
         _setReg(BQ25895M_REG03, 0x3a);
 
         // Set default charge voltage to 4.2V 
