@@ -41,7 +41,7 @@ Enables and configures the battery charger with settings to perform a charging c
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
 | *chargeVoltage* | Float | No | The desired charge voltage in Volts (3.84 - 4.608V). Defaults to 4.2V if no parameter is passed in. |
-| *currentLimit* | Integer | No | The desired fast charge current limit in milliAmps (0 - 5056mA). Defaults to 1000mA if not parameter is passed in. |
+| *currentLimit* | Integer | No | The desired fast charge current limit in milliAmps (0 - 5056mA). Defaults to 1000mA if no parameter is passed in. |
 
 #### Return Value ####
 
@@ -102,7 +102,7 @@ This method sets the desired battery voltage that the device should charge to.
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| *chargeVoltage* | Integer | Yes | The desired charge voltage in milliVolts (3.840 - 4.608mV). Default is 4.352V |
+| *chargeVoltage* | Integer | Yes | The desired charge voltage in milliVolts (3.840 - 4.608V). Default is 4.352V |
 
 #### Return Value ####
 
