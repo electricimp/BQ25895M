@@ -1,5 +1,3 @@
-Example
-Example
 # Setting up the BQ25895M for your battery #
 
 
