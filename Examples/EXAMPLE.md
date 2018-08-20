@@ -10,7 +10,7 @@ In this example we will be looking at this [3.7V 2000mAh]( https://www.adafruit.
 
 In section 3, Form 1 is a table describing the battery rated performance characteristics. Looking at row 4 we can see the charging voltage is 4.2V. Row 6 shows the quick charge current is 1CA. The C represents the battery capacity. Row 1 shows that the capacity is 2000mAh. This means that the quick charge current = 1 * 2000 mA =  2000mA.
 
-It is very important that find the correct values for these two parameters as exceeding them can cause damage to your battery.
+It is very important to find the correct values for these two parameters as exceeding them can cause damage to your battery.
 
 ## Example ##
 
