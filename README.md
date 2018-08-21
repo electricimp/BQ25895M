@@ -1,3 +1,4 @@
+
 # BQ25895M #
 
 The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch mode battery charge management and system power path management device for single cell Li-Ion and Li-polymer batteries. It supports high input voltage fast charging and communicates over an I2C serial interface.
@@ -32,7 +33,7 @@ batteryCharger <- BQ25895M(i2c);
   
 ## Class Methods ##
 
-### configureCharger(*[chargeVoltage][, currentLimit]*) ###
+### enableCharger(*[,chargeVoltage][, currentLimit][,settings]*) ###
 
 Enables and configures the battery charger with settings to perform a charging cycle when a battery is connected and an input source is available. If no parameters are passed in the *chargeVoltage* will be set to 4.2V and the *currentLimit* will be set to 1000mA. It is recommended that this function is called immediately after the constructor on cold boots. 
 
@@ -42,6 +43,14 @@ Enables and configures the battery charger with settings to perform a charging c
 | --- | --- | --- | --- |
 | *chargeVoltage* | Float | No | The desired charge voltage in Volts (3.84 - 4.608V). Defaults to 4.2V if no parameter is passed in. |
 | *currentLimit* | Integer | No | The desired fast charge current limit in milliAmps (0 - 5056mA). Defaults to 1000mA if no parameter is passed in. |
+| *settings* | Table | No | The table entries will enable additional settings available within the charger|
+
+##### Settings Table #####
+
+| Charging Fault | Value | Description |
+| --- | --- | --- |
+| *chargeCurrentOptimizer* | *1* |  Identify maximum power point without overload the input source
+
 
 #### Return Value ####
 
@@ -50,30 +59,11 @@ None.
 #### Example ####
 
 ```squirrel
-// Configure battery charger with charge voltage of 4.2V and current limit of 1A
-batteryCharger.configureCharger();
+// Configure battery charger with charge voltage of 4.2V and current limit of 1000mA
+batteryCharger.enableCharger(4.2, 1000);
 ```
 
-### enableCharging() ###
-
-Enables the device to automatically perform a charging cycle when a battery is connected and an input source is available. Charging is enabled by default.
-
-#### Parameters ####
-
-None.
-
-#### Return Value ####
-
-None.
-
-#### Example ####
-
-```squirrel
-// Enables charging
-batteryCharger.enableCharging();
-```
-
-### disableCharging() ###
+### disableCharger() ###
 
 Disables charging capabilities from the device. The device will not charge until enableCharging() is called again.
 
@@ -90,71 +80,6 @@ None.
 ```squirrel
 // Disables charging
 batteryCharger.disableCharging();
-```
-
-### setChargeVoltage(*chargeVoltage*) ###
-
-This method sets the desired battery voltage that the device should charge to. 
-
-**Note:** You can also use the *configureCharger()* method to set the charge voltage. 
-
-#### Parameters ####
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| *chargeVoltage* | Integer | Yes | The desired charge voltage in milliVolts (3.840 - 4.608V). Default is 4.352V |
-
-#### Return Value ####
-
-None.
-
-#### Example ####
-
-```squirrel
-// Sets the charge voltage to 4.2V
-batteryCharger.setChargeVoltage(4.2);
-```
-
-### setChargeCurrent(*milliAmps*) ###
-
-This method sets the fast charge current limit.
-
-**Note:** You can also use the *configureCharger()* method to set the charge current.
-
-#### Parameters ####
-
-| Parameter | Type | Required | Description |
-| --- | --- | --- | --- |
-| *currentLimit* | Integer | Yes | The desired fast charge current limit in milliAmps (0 - 5056mA). Default is 2048mA |
-
-#### Return Value ####
-
-None.
-
-#### Example ####
-
-```squirrel
-// Sets the fast charge current limit to 1000mA
-batteryCharger.setChargeCurrent(1000);
-```
-
-### setChargeCurrentOptimizer() ###
-
-This method forces the input current optimizer to start. This but automatically returns to 0 after input current optimization starts.
-
-#### Parameters ####
-
-None.
-
-#### Return Value ####
-
-None.
-
-#### Example ####
-
-```squirrel
-// Forces the input current optimizer to start
-batteryCharger.setChargeCurrentOptimizer();
 ```
 
 ### getChargeVoltage() ###
@@ -364,7 +289,7 @@ switch(faults.ntcFault) {
 
 ### reset() ###
 
-Software reset which clears all register settings.
+Software reset which clears all register settings. NOTE: This will reset the charge voltage and current to the register default of  4.352V and 2048A.
 
 #### Parameters ####
 

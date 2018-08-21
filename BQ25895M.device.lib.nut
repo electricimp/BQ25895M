@@ -89,7 +89,7 @@ class BQ25895M {
     //PUBLIC METHODS
     
     // Initialize battery charger with standard configuration
-    function configureCharger(voltage = null, current = null) {
+    function enableCharger(voltage = null, current = null, settings = {}) {
 
         // Enable charger and min system voltage 
         // Note: This is the register default
@@ -102,29 +102,27 @@ class BQ25895M {
         // Note: Register default is 4.352V, need to 
         // start watchdog to keep any other setting
         if (voltage == null) voltage = 4.2;
-        setChargeVoltage(voltage); 
+        _setChargeVoltage(voltage); 
 
         // Set default charge current limit to 1A 
         // Note: Register default is 2048mA, need to 
         // start watchdog to keep any other setting
-        setChargeCurrent(1000); 
+        if(current == null) current = 1000;
+        _setChargeCurrent(current); 
 
+        if(settings == {}){ 
+            _setChargeCurrentOptimizer();
+        }
+        
         // Start kicking watchdog
         _kickWatchdog();
-    }
-    
-    // Set the enable charging bit, charging will happen automatically
-    function enableCharging() {
         
-        local rd = _getReg(BQ25895M_REG03);
-        rd = rd | (1 << 4); // set CHG_CONFIG bit
-        
-        _setReg(BQ25895M_REG03, rd);
+        _enableCharging();
         
     } 
-     
+    
     // Clear the enable charging bit, device will not charge until enableCharging() is called again
-    function disableCharging() {
+    function disableCharger() {
         
         local rd = _getReg(BQ25895M_REG03);
         rd = rd & ~(1 << 4); // clear CHG_CONFIG bits
@@ -134,62 +132,8 @@ class BQ25895M {
         // Start kicking watchdog, since default is 
         // to enable charging
         _kickWatchdog();
+        
     } 
-    
-    // Set target battery voltage
-    function setChargeVoltage(vreg) { 
-        // Convert to mV
-        vreg *= 1000;
-        
-        // Check that input is within accepted range
-        if (vreg < 3840) {
-            // minimum charge voltage from device datasheet
-            vreg = 3840; 
-        } else if (vreg > 4608) {
-            // maximum charge voltage from device datasheet
-            vreg = 4608; 
-        }
-        
-        local rd = _getReg(BQ25895M_REG06);
-        rd = rd & ~(0xFC); // clear current limit bits
-        rd = rd | (0xFC & (((vreg - 3840) / 16).tointeger()) << 2); // 3840mV is the default offset, 16mV is the resolution
-
-        _setReg(BQ25895M_REG06, rd);
-
-        // Note: Register default is 4.352V, need to 
-        // start watchdog to keep any other setting
-        _kickWatchdog();
-    }
-
-    // Set fast charge current
-    function setChargeCurrent(ichg) {
-        
-        // Check that input is within accepted range
-        if (ichg < 0) { // charge current must be greater than 0
-            ichg = 0;
-        } else if (ichg > 5056) { // max charge current from device datasheet
-            sichg = 5056;
-        }
-        
-        local rd = _getReg(BQ25895M_REG04);
-        rd = rd & ~(0x7F); // clear current limit bits
-        rd = rd | (0x7F & ichg / 64); // 64mA is the resolution
-    
-        _setReg(BQ25895M_REG04, rd);
-        
-        // Note: Register default is 2048mA, need to 
-        // start watchdog to keep any other setting
-        _kickWatchdog();
-    }
-    
-    function setChargeCurrentOptimizer() {
-        
-        local rd = _getReg(BQ25895M_REG09);
-        rd = rd | (1 << 7);
-        
-        _setReg(BQ25895M_REG09, rd);
-        
-    }
     
     // Returns the target battery voltage
     function getChargeVoltage() {
@@ -199,6 +143,7 @@ class BQ25895M {
 
         // Convert mV to Volts
         return chrgVlim / 1000.0;
+        
     }
     
     // Returns the battery voltage based on the ADC conversion
@@ -207,10 +152,11 @@ class BQ25895M {
         _convStart(); // Kick ADC
         
         local rd = _getReg(BQ25895M_REG0E);
-        local battV =(2304 + (20 * (rd & 0x7f))); // 2304mV must be added as the offset, 20mV is the resolution
+        local battV = (2304 + (20 * (rd & 0x7f))); // 2304mV must be added as the offset, 20mV is the resolution
         
         // Convert mV to Volts
         return battV / 1000.0;
+        
     }
      
     // Returns the VBUS voltage based on the ADC conversion, this is the input voltage
@@ -223,6 +169,7 @@ class BQ25895M {
         
         // Convert mV to Volts
         return vBusV / 1000.0; 
+        
     }
     
     // Returns the system voltage based on the ADC conversion
@@ -235,6 +182,7 @@ class BQ25895M {
         
         // Convert mV to Volts
         return sysV;
+        
     }
 
     // Returns the measured charge current based on the ADC conversion
@@ -246,6 +194,7 @@ class BQ25895M {
         local iChgr = (50 * (rd & 0x7f)); // 50mA is the resolution
         
         return iChgr;  
+        
     }
     
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
@@ -256,6 +205,7 @@ class BQ25895M {
         rd = rd & 0x18; 
         
         return rd;
+        
     }
     
     // Returns the possible charger faults in an array: watchdogFault, boostFault, chrgFault, battFault, ntcFault
@@ -291,11 +241,88 @@ class BQ25895M {
     
     //-------------------- PRIVATE METHODS --------------------//
     
+    // Set the enable charging bit, charging will happen automatically
+    function _enableCharging() {
+        
+        local rd = _getReg(BQ25895M_REG03);
+        rd = rd | (1 << 4); // set CHG_CONFIG bit
+        
+        _setReg(BQ25895M_REG03, rd);
+        
+    } 
+    
+    // Set target battery voltage
+    function _setChargeVoltage(vreg) { 
+        
+        // Convert to mV
+        vreg *= 1000;
+        
+        // Check that input is within accepted range
+        if (vreg < 3840) {
+            // minimum charge voltage from device datasheet
+            vreg = 3840; 
+        } else if (vreg > 4608) {
+            // maximum charge voltage from device datasheet
+            vreg = 4608; 
+        }
+        
+        local rd = _getReg(BQ25895M_REG06);
+        rd = rd & ~(0xFC); // clear current limit bits
+        rd = rd | (0xFC & (((vreg - 3840) / 16).tointeger()) << 2); // 3840mV is the default offset, 16mV is the resolution
+
+        _setReg(BQ25895M_REG06, rd);
+
+        // Note: Register default is 4.352V, need to 
+        // start watchdog to keep any other setting
+        _kickWatchdog();
+        
+    }
+    
+    // Set fast charge current
+    function _setChargeCurrent(ichg) {
+        
+        // Check that input is within accepted range
+        if (ichg < 0) { // charge current must be greater than 0
+            ichg = 0;
+        } else if (ichg > 5056) { // max charge current from device datasheet
+            sichg = 5056;
+        }
+        
+        local rd = _getReg(BQ25895M_REG04);
+        rd = rd & ~(0x7F); // clear current limit bits
+        rd = rd | (0x7F & ichg / 64); // 64mA is the resolution
+    
+        _setReg(BQ25895M_REG04, rd);
+        
+        // Note: Register default is 2048mA, need to 
+        // start watchdog to keep any other setting
+        _kickWatchdog();
+        
+    }
+    
+    function _setChargeCurrentOptimizer() {
+        
+        local rd = _getReg(BQ25895M_REG09);
+        rd = rd | (1 << 7);
+        
+        _setReg(BQ25895M_REG09, rd);
+        
+    }
+     
     function _kickWatchdog() {
+        
         _setRegBit(BQ25895M_REG03, 6, 1); // Kick watchdog
         
         if (_watchdogtimer != null) imp.cancelwakeup(_watchdogtimer);
         _watchdogtimer = imp.wakeup(60, _kickWatchdog.bindenv(this));
+        
+    }
+    
+    function _convStart() { 
+        
+        // call before ADC conversion
+        _setRegBit(BQ25895M_REG02, 7, 1);
+        
     }
 
     function _getReg(reg) {
@@ -330,8 +357,4 @@ class BQ25895M {
         
     }
     
-    function _convStart() { 
-        // call before ADC conversion
-        _setRegBit(BQ25895M_REG02, 7, 1);
-    }
 } 
