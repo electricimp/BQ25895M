@@ -22,5 +22,5 @@ local i2c = hardware.i2cKL
 i2c.configure(CLOCK_SPEED_400_KHZ);
 batteryCharger <- BQ25895M(i2c);
 
-configureCharger(4.2, 2000); //configures the charger to charge at 4.2V and a maximum of 2000mA
+configureCharger(4.2, 2000); //configures the charger to charge at 4.2V at a maximum of 2000mA
 ```
