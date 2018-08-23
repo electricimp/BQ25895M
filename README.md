@@ -48,9 +48,9 @@ This method configures and enables the battery charger with settings to perform 
 
 ##### Settings Table Options #####
 
-| Table Key | Default Value | Description |
+| Table Key | Value | Description |
 | --- | --- | --- |
-| *chargeCurrentOptimizer* | 1 | Identify maximum power point without overload the input source |
+| *chargeCurrentOptimizer* | *true* | Identify maximum power point without overload the input source |
 
 #### Return Value ####
 
