@@ -42,8 +42,8 @@ This method configures and enables the battery charger with settings to perform 
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| *chargeVoltage* | Float | No | The desired charge voltage in V (3.84 - 4.608V). Default: 4.2V |
-| *currentLimit* | Integer | No | The desired fast charge current limit in mA (0 - 5056mA). Default: 1000mA |
+| *chargeVoltage* | Float | No | The desired charge voltage in V (3.84 - 4.608V).|
+| *currentLimit* | Integer | No | The desired fast charge current limit in mA (0 - 5056mA).|
 | *settings* | Table | No | A table of additional settings *(see below)* |
 
 ##### Settings Table Options #####
