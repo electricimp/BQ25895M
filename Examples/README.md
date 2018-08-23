@@ -26,5 +26,5 @@ i2c.configure(CLOCK_SPEED_400_KHZ);
 batteryCharger <- BQ25895M(i2c);
 
 // Configure the charger to charge at 4.2V to a maximum of 2000mA
-batteryCharger.enableCharger(4.2, 2000); 
+batteryCharger.enable(4.2, 2000); 
 ```
