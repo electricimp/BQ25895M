@@ -34,11 +34,7 @@ batteryCharger <- BQ25895M(i2c);
 
 ## Class Methods ##
 
-<<<<<<< HEAD
 ### enable(*[,chargeVoltage][, currentLimit][,settings]*) ###
-=======
-### enableCharger(*[chargeVoltage][, currentLimit][, settings]*) ###
->>>>>>> 17f669ce7354d57f28981e30c54fbdd46051aa97
 
 This method configures and enables the battery charger with settings to perform a charging cycle when a battery is connected and an input source is available. It is recommended that this function is called immediately after the constructor on cold boots.
 
