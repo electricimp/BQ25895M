@@ -59,13 +59,8 @@ Nothing.
 #### Example ####
 
 ```squirrel
-<<<<<<< HEAD
 // Configure battery charger with charge voltage of 4.2V and current limit of 1000mA
 batteryCharger.enable(4.2, 1000);
-=======
-// Configure the charger with charge voltage of 4.2V and current limit of 1000mA
-batteryCharger.enableCharger(4.2, 1000);
->>>>>>> 17f669ce7354d57f28981e30c54fbdd46051aa97
 ```
 
 ### disable() ###
@@ -79,13 +74,9 @@ Nothing.
 #### Example ####
 
 ```squirrel
-<<<<<<< HEAD
 // Disables charging
 batteryCharger.disable();
-=======
-// Disable charging
-batteryCharger.disableCharging();
->>>>>>> 17f669ce7354d57f28981e30c54fbdd46051aa97
+
 ```
 
 ### getChargeVoltage() ###
