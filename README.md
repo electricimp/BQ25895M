@@ -35,7 +35,7 @@ batteryCharger <- BQ25895M(i2c);
 
 ## Class Methods ##
 
-### enable(*[,chargeVoltage][, currentLimit][,settings]*) ###
+### enable(*chargeVoltage, currentLimit[,settings]*) ###
 
 This method configures and enables the battery charger with settings to perform a charging cycle when a battery is connected and an input source is available. It is recommended that this function is called immediately after the constructor on cold boots.
 
@@ -43,15 +43,15 @@ This method configures and enables the battery charger with settings to perform 
 
 | Parameter | Type | Required | Description |
 | --- | --- | --- | --- |
-| *chargeVoltage* | Float | No | The desired charge voltage in V (3.84 - 4.608V).|
-| *currentLimit* | Integer | No | The desired fast charge current limit in mA (0 - 5056mA).|
+| *chargeVoltage* | Float | Yes | The desired charge voltage in V (3.84 - 4.608V).|
+| *currentLimit* | Integer | Yes | The desired fast charge current limit in mA (0 - 5056mA).|
 | *settings* | Table | No | A table of additional settings *(see below)* |
 
 ##### Settings Table Options #####
 
 | Table Key | Value | Description |
 | --- | --- | --- |
-| *chargeCurrentOptimizer* | *true* | Identify maximum power point without overload the input source |
+| *setChargeCurrentOptimizer* | *true* | Identify maximum power point without overload the input source |
 
 #### Return Value ####
 
