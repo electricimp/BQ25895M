@@ -89,7 +89,7 @@ class BQ25895M {
     //PUBLIC METHODS
     
     // Initialize battery charger with standard configuration
-    function enableCharger(voltage = null, current = null, settings = {}) {
+    function enableCharger(voltage = 4.2, current = 1000, settings = null) { //remove nulls, fix setChargeCurrentOptimize
 
         // Enable charger and min system voltage 
         // Note: This is the register default
@@ -101,23 +101,24 @@ class BQ25895M {
         // Set default charge voltage to 4.2V 
         // Note: Register default is 4.352V, need to 
         // start watchdog to keep any other setting
-        if (voltage == null) voltage = 4.2;
         _setChargeVoltage(voltage); 
 
         // Set default charge current limit to 1A 
         // Note: Register default is 2048mA, need to 
         // start watchdog to keep any other setting
-        if(current == null) current = 1000;
         _setChargeCurrent(current); 
 
-        if(settings == {}){ 
-            _setChargeCurrentOptimizer();
+        if(!settings){
+            settings = {};
         }
         
-        // Start kicking watchdog
-        _kickWatchdog();
+        local _chargeCurrentOptimizer = "chargeCurrentOptimizer" in settings ? settings["chargeCurrentOptimizer"] : null;
         
-        _enableCharging();
+        if(_chargeCurrentOptimizer == 1){   
+            _setRegBit(BQ25895M_REG09, 7, 1); // enable charge current optimizer
+        }else{
+            _setRegBit(BQ25895M_REG09, 7, 0); // disable charge current optimizer
+        }
         
     } 
     
@@ -241,16 +242,6 @@ class BQ25895M {
     
     //-------------------- PRIVATE METHODS --------------------//
     
-    // Set the enable charging bit, charging will happen automatically
-    function _enableCharging() {
-        
-        local rd = _getReg(BQ25895M_REG03);
-        rd = rd | (1 << 4); // set CHG_CONFIG bit
-        
-        _setReg(BQ25895M_REG03, rd);
-        
-    } 
-    
     // Set target battery voltage
     function _setChargeVoltage(vreg) { 
         
@@ -300,15 +291,6 @@ class BQ25895M {
         
     }
     
-    function _setChargeCurrentOptimizer() {
-        
-        local rd = _getReg(BQ25895M_REG09);
-        rd = rd | (1 << 7);
-        
-        _setReg(BQ25895M_REG09, rd);
-        
-    }
-     
     function _kickWatchdog() {
         
         _setRegBit(BQ25895M_REG03, 6, 1); // Kick watchdog
