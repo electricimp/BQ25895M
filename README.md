@@ -1,3 +1,4 @@
+
 # BQ25895M #
 
 The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch-mode battery charge and system power path management device for single-cell Li-Ion and Li-polymer batteries. It supports high input voltage fast charging and communicates over an I&sup2;C interface.
@@ -111,11 +112,11 @@ server.log("Voltage (ADC): " + voltage + "V");
 
 ### getVBUSVoltage() ###
 
-This method gets the V<sup>BUS</sup> voltage based on ADC conversion. This is the input voltage.
+This method gets the V<sub>BUS</sub> voltage based on ADC conversion. This is the input voltage.
 
 #### Return Value ####
 
-Float &mdash; The V<sup>BUS</sup> voltage voltage in V.
+Float &mdash; The V<sub>BUS</sub>  voltage in V.
 
 #### Example ####
 
