@@ -33,7 +33,7 @@ batteryCharger <- BQ25895M(i2c);
   
 ## Class Methods ##
 
-### enableCharger(*[,chargeVoltage][, currentLimit][,settings]*) ###
+### enable(*[,chargeVoltage][, currentLimit][,settings]*) ###
 
 Enables and configures the battery charger with settings to perform a charging cycle when a battery is connected and an input source is available. If no parameters are passed in the *chargeVoltage* will be set to 4.2V and the *currentLimit* will be set to 1000mA. It is recommended that this function is called immediately after the constructor on cold boots. 
 
@@ -60,10 +60,10 @@ None.
 
 ```squirrel
 // Configure battery charger with charge voltage of 4.2V and current limit of 1000mA
-batteryCharger.enableCharger(4.2, 1000);
+batteryCharger.enable(4.2, 1000);
 ```
 
-### disableCharger() ###
+### disable() ###
 
 Disables charging capabilities from the device. The device will not charge until enableCharging() is called again.
 
@@ -79,7 +79,7 @@ None.
 
 ```squirrel
 // Disables charging
-batteryCharger.disableCharging();
+batteryCharger.disable();
 ```
 
 ### getChargeVoltage() ###

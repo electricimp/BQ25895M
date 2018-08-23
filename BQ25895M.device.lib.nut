@@ -45,6 +45,8 @@ const BQ25895M_REG12 = 0x12;
 const BQ25895M_REG13 = 0x13;
 const BQ25895M_REG14 = 0x14;
 
+const WATCHDOG_RESET_TIME = 30; // default watchdog reset time in seconds
+
 // For getChargeStatus() output
 enum BQ25895M_CHARGING_STATUS{
     NOT_CHARGING = 0x00, // 0
@@ -89,7 +91,7 @@ class BQ25895M {
     //PUBLIC METHODS
     
     // Initialize battery charger with standard configuration
-    function enableCharger(voltage = 4.2, current = 1000, settings = null) { //remove nulls, fix setChargeCurrentOptimize
+    function enable(voltage, current, settings = null) { //remove nulls, fix setChargeCurrentOptimize
 
         // Enable charger and min system voltage 
         // Note: This is the register default
@@ -98,12 +100,10 @@ class BQ25895M {
         // and register defaults are used  
         _setReg(BQ25895M_REG03, 0x3a);
 
-        // Set default charge voltage to 4.2V 
         // Note: Register default is 4.352V, need to 
         // start watchdog to keep any other setting
         _setChargeVoltage(voltage); 
 
-        // Set default charge current limit to 1A 
         // Note: Register default is 2048mA, need to 
         // start watchdog to keep any other setting
         _setChargeCurrent(current); 
@@ -112,18 +112,19 @@ class BQ25895M {
             settings = {};
         }
         
-        local _chargeCurrentOptimizer = "chargeCurrentOptimizer" in settings ? settings["chargeCurrentOptimizer"] : null;
-        
-        if(_chargeCurrentOptimizer == 1){   
+        if(("chargeCurrentOptimizer" in settings) && settings["chargeCurrentOptimizer"]){   
             _setRegBit(BQ25895M_REG09, 7, 1); // enable charge current optimizer
+            server.log("ICO_EN");
         }else{
             _setRegBit(BQ25895M_REG09, 7, 0); // disable charge current optimizer
         }
         
+        _kickWatchdog();
+        
     } 
     
     // Clear the enable charging bit, device will not charge until enableCharging() is called again
-    function disableCharger() {
+    function disable() {
         
         local rd = _getReg(BQ25895M_REG03);
         rd = rd & ~(1 << 4); // clear CHG_CONFIG bits
@@ -265,8 +266,7 @@ class BQ25895M {
 
         // Note: Register default is 4.352V, need to 
         // start watchdog to keep any other setting
-        _kickWatchdog();
-        
+
     }
     
     // Set fast charge current
@@ -287,8 +287,7 @@ class BQ25895M {
         
         // Note: Register default is 2048mA, need to 
         // start watchdog to keep any other setting
-        _kickWatchdog();
-        
+
     }
     
     function _kickWatchdog() {
@@ -296,7 +295,8 @@ class BQ25895M {
         _setRegBit(BQ25895M_REG03, 6, 1); // Kick watchdog
         
         if (_watchdogtimer != null) imp.cancelwakeup(_watchdogtimer);
-        _watchdogtimer = imp.wakeup(60, _kickWatchdog.bindenv(this));
+        server.log("KICK WATCHDOG");
+        _watchdogtimer = imp.wakeup(WATCHDOG_RESET_TIME, _kickWatchdog.bindenv(this));
         
     }
     
