@@ -156,7 +156,7 @@ local current = batteryCharger.getChargingCurrent();
 server.log("Current (charging): " + current + "mA");
 ```
 ### getInputStatus() ###
-This method returns the type of power source connected to the charger input as well as the resulting input current limit.
+This method returns the type of power source connected to the charger as well as the resulting input current limit.
 
 #### Return Value ####
 Table &mdash; An input status report *(see below)*
