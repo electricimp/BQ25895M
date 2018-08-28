@@ -1,4 +1,5 @@
 
+
 # BQ25895M #
 
 The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch-mode battery charge and system power path management device for single-cell Li-Ion and Li-polymer batteries. It supports high input voltage fast charging and communicates over an I&sup2;C interface.
@@ -153,6 +154,65 @@ Integer &mdash; The charging current in mA.
 ```squirrel
 local current = batteryCharger.getChargingCurrent();
 server.log("Current (charging): " + current + "mA");
+```
+### getInputStatus() ###
+This method returns the type of power source connected to the charger input as well as the resulting input current limit.
+
+#### Return Value ####
+Table &mdash; An input status report *(see below)*
+
+| Key| Type | Description |
+| --- | --- | --- |
+| *vbusStatus* | integer| Possible input states, see table below for details |
+| *inputCurrentLimit* | integer| 100-3250mA |
+
+#### VBUS Status ####
+
+| VBUS Status Constant | Value |
+| --- | --- |
+| *BQ25895M_VBUS_STATUS.NO_INPUT* | 0x00 |
+| *BQ25895M_VBUS_STATUS.USB_HOST_SDP* | 0x20 |
+| *BQ25895M_VBUS_STATUS.USB_CDP* | 0x40 |
+| *BQ25895M_VBUS_STATUS.USB_DCP* | 0x60 |
+| *BQ25895M_VBUS_STATUS.ADJUSTABLE_HV_DCP* | 0x80 |
+| *BQ25895M_VBUS_STATUS.UNKNOWN_ADAPTER* | 0xA0 |
+| *BQ25895M_VBUS_STATUS.NON_STANDARD_ADAPTER* | 0xC0 |
+| *BQ25895M_VBUS_STATUS.OTG* | 0xE0 |
+
+#### Example ####
+
+```squirrel
+local inputStatus = batteryCharger.getInputStatus();
+
+    switch(inputStatus.vbusStatus) {
+      case BQ25895M_VBUS_STATUS.NO_INPUT:
+        server.log("No Input");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_HOST_SDP:
+        server.log("USB Host SDP");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_CDP:
+        server.log("USB CDP");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_DCP:
+        server.log("USB DCP");
+        break;
+      case BQ25895M_VBUS_STATUS.ADJUSTABLE_HV_DCP:
+        server.log("Adjustable High Voltage DCP");
+        break;
+          case BQ25895M_VBUS_STATUS.UNKNOWN_ADAPTER:
+        server.log("Unknown Adapter");
+        break;
+      case BQ25895M_VBUS_STATUS.NON_STANDARD_ADAPTER:
+        server.log("Non Standard Adapter");
+        break;
+      case BQ25895M_VBUS_STATUS.OTG:
+        server.log("OTG");
+        break;
+    }
+
+server.log("Input Current Limit = " + inputStatus.inputCurrentLimit);
+
 ```
 
 ### getChargingStatus() ###

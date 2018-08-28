@@ -48,23 +48,35 @@ const BQ25895M_REG14 = 0x14;
 // Default watchdog reset time in seconds
 const WATCHDOG_RESET_TIME = 30;
 
+// For vbusStatus in getInputStatus() output
+enum BQ25895M_VBUS_STATUS {
+    NO_INPUT             = 0x00, // 0 
+    USB_HOST_SDP         = 0x20, // 1
+    USB_CDP              = 0x40, // 2
+    USB_DCP              = 0x60, // 3
+    ADJUSTABLE_HV_DCP    = 0x80, // 4
+    UNKNOWN_ADAPTER      = 0xA0, // 5
+    NON_STANDARD_ADAPTER = 0xC0, // 6
+    OTG                  = 0xE0  // 7
+}
+
 // For getChargeStatus() output
-enum BQ25895M_CHARGING_STATUS{
+enum BQ25895M_CHARGING_STATUS {
     NOT_CHARGING            = 0x00, // 0
     PRE_CHARGE              = 0x08, // 1
     FAST_CHARGING           = 0x10, // 2
     CHARGE_TERMINATION_DONE = 0x18  // 3
 }
 
-// For CHGR_FAULT in getChargingFaults output
-enum BQ25895M_CHARGING_FAULT{
+// For CHGR_FAULT in getChargingFaults() output
+enum BQ25895M_CHARGING_FAULT {
     NORMAL,                        // 0
     INPUT_FAULT,                   // 1
     THERMAL_SHUTDOWN,              // 2
     CHARGE_SAFETY_TIMER_EXPIRATION // 3
 }
 
-// For NTC_FAULT in getChargingFaults output
+// For NTC_FAULT in getChargingFaults() output
 enum BQ25895M_NTC_FAULT{
     NORMAL,  // 0
     TS_COLD, // 1
@@ -183,6 +195,20 @@ class BQ25895M {
         return sysV;
 
     }
+    
+    // Returns the charging mode and input current limit in a table
+    function getInputStatus(){
+        
+        local inputStatus = {"vbusStatus" : 0, "inputCurrentLimit" : 0};
+        
+        local rd = _getReg(BQ25895M_REG0B); // Read VBUS status reg
+        inputStatus.vbusStatus <- rd & 0xE0;
+        
+        local rdd = _getReg(BQ25895M_REG00);
+        inputStatus.inputCurrentLimit <- (100 + (50 * (rdd & 0x3f))); // 100mA offset, 50mA resolution
+        
+        return inputStatus;
+    }
 
     // Returns the measured charge current based on the ADC conversion
     function getChargingCurrent() {
@@ -198,9 +224,8 @@ class BQ25895M {
 
     // Returns the charging status: Not Charging, Pre-charge, Fast Charging, Charge Termination Good
     function getChargingStatus() {
-        local chargingStatus;
 
-        local rd = _getReg(BQ25895M_REG0B)
+        local rd = _getReg(BQ25895M_REG0B);
         rd = rd & 0x18;
 
         return rd;
