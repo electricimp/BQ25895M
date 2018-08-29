@@ -53,6 +53,7 @@ This method configures and enables the battery charger with settings to perform 
 | Table Key | Value | Description |
 | --- | --- | --- |
 | *setChargeCurrentOptimizer* | `true` | Identify maximum power point without overloading the input source |
+| *setChargeTerminationCurrentLimit*	| 64-1024mA | Charge cycle is terminated when battery voltage is above recharge threwshold and the current is below *termination current* |
 
 #### Return Value ####
 
@@ -61,8 +62,11 @@ Nothing.
 #### Example ####
 
 ```squirrel
-// Configure battery charger with charge voltage of 4.2V and current limit of 1000mA
-batteryCharger.enable(4.2, 1000);
+// Configure battery charger with charge voltage of 4.2V and current limit of 1000mA.
+// Enable charge current optimizer and set charge termination current lim to 128
+
+settings <- {"chargeCurrentOptimizer":1, "setChargeTerminationCurrentLimit":128};
+batteryCharger.enable(4.2, 1000, settings);
 ```
 
 ### disable() ###
@@ -156,7 +160,7 @@ local current = batteryCharger.getChargingCurrent();
 server.log("Current (charging): " + current + "mA");
 ```
 ### getInputStatus() ###
-This method returns the type of power source connected to the charger as well as the resulting input current limit.
+This method returns the type of power source connected to the charger input as well as the resulting input current limit.
 
 #### Return Value ####
 Table &mdash; An input status report *(see below)*

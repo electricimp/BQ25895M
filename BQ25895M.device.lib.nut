@@ -120,12 +120,18 @@ class BQ25895M {
 
         if (!settings) {
             settings = {};
-        }
+        } 
 
         if (("setChargeCurrentOptimizer" in settings) && settings["setChargeCurrentOptimizer"]) {
             _setRegBit(BQ25895M_REG09, 7, 1); // enable charge current optimizer
         } else {
             _setRegBit(BQ25895M_REG09, 7, 0); // disable charge current optimizer
+        }
+    
+        if (("setChargeTerminationCurrentLimit" in settings) && settings["setChargeTerminationCurrentLimit"]) {
+            _setChargeTerminationCurrent(settings.setChargeTerminationCurrentLimit);        
+        } else {
+            _setChargeTerminationCurrent(256); // set default charge termination current limit of 256mA
         }
 
         // Make sure settings don't revert to chip defaults
@@ -204,8 +210,8 @@ class BQ25895M {
         local rd = _getReg(BQ25895M_REG0B); // Read VBUS status reg
         inputStatus.vbusStatus <- rd & 0xE0;
         
-        local rdd = _getReg(BQ25895M_REG00);
-        inputStatus.inputCurrentLimit <- (100 + (50 * (rdd & 0x3f))); // 100mA offset, 50mA resolution
+        local rd = _getReg(BQ25895M_REG00);
+        inputStatus.inputCurrentLimit <- (100 + (50 * (rd & 0x3f))); // 100mA offset, 50mA resolution
         
         return inputStatus;
     }
@@ -281,7 +287,7 @@ class BQ25895M {
         }
 
         local rd = _getReg(BQ25895M_REG06);
-        rd = rd & ~(0xFC); // clear current limit bits
+        rd = rd & ~(0xFC); // clear bits
         rd = rd | (0xFC & (((vreg - 3840) / 16).tointeger()) << 2); // 3840mV is the default offset, 16mV is the resolution
 
         _setReg(BQ25895M_REG06, rd);
@@ -295,15 +301,32 @@ class BQ25895M {
         if (ichg < 0) { // charge current must be greater than 0
             ichg = 0;
         } else if (ichg > 5056) { // max charge current from device datasheet
-            sichg = 5056;
+            ichg = 5056;
         }
 
         local rd = _getReg(BQ25895M_REG04);
-        rd = rd & ~(0x7F); // clear current limit bits
+        rd = rd & ~(0x7F); // clear bits
         rd = rd | (0x7F & ichg / 64); // 64mA is the resolution
 
         _setReg(BQ25895M_REG04, rd);
 
+    }
+    
+    function _setChargeTerminationCurrent(iterm){
+        
+        // Check that input is within accepted range
+        if (iterm < 64) { // charge current must be greater than 0
+            iterm = 64;
+        } else if (iterm >= 1024) { // max charge current from device datasheet
+            iterm = 1024;
+        }
+
+        local rd = _getReg(BQ25895M_REG05);
+        rd = rd & ~(0x0F); // clear bits
+        rd = rd | (0x0F & (iterm - 64) / 64); // 64mA is the resolution
+
+        _setReg(BQ25895M_REG05, rd); 
+        
     }
 
     function _kickWatchdog() {
