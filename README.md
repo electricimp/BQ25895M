@@ -65,7 +65,7 @@ Nothing.
 // Configure battery charger with charge voltage of 4.2V and current limit of 1000mA.
 // Enable charge current optimizer and set charge termination current lim to 128
 
-settings <- {"chargeCurrentOptimizer":1, "setChargeTerminationCurrentLimit":128};
+settings <- {"chargeCurrentOptimizer":true, "setChargeTerminationCurrentLimit":128};
 batteryCharger.enable(4.2, 1000, settings);
 ```
 
