@@ -114,7 +114,7 @@ This method gets the V<sub>BUS</sub> voltage based on ADC conversion. This is th
 
 #### Return Value ####
 
-Float &mdash; The V<sub>BUS</sub>  voltage in V.
+Float &mdash; The V<sub>BUS</sub> voltage in V.
 
 #### Example ####
 
@@ -173,18 +173,18 @@ Integer &mdash; A charging status constant *(see below)*
 ```squirrel
 local status = charger.getChargingStatus();
 switch(status) {
-  case BQ25895M_CHARGING_STATUS.NOT_CHARGING:
-    // Do something
-    break;
-  case BQ25895M_CHARGING_STATUS.PRE_CHARGE:
-    // Do something
-    break;
-  case BQ25895M_CHARGING_STATUS.FAST_CHARGING:
-    // Do something
-    break;
-  case BQ25895M_CHARGING_STATUS.CHARGE_TERMINATION_DONE:
-    // Do something
-    break;
+    case BQ25895M_CHARGING_STATUS.NOT_CHARGING:
+        // Do something
+        break;
+    case BQ25895M_CHARGING_STATUS.PRE_CHARGE:
+        // Do something
+        break;
+    case BQ25895M_CHARGING_STATUS.FAST_CHARGING:
+        // Do something
+        break;
+    case BQ25895M_CHARGING_STATUS.CHARGE_TERMINATION_DONE:
+        // Do something
+        break;
 }
 ```
 
@@ -230,32 +230,32 @@ if (faults.watchdogFault) server.log("Watchdog Timer Fault reported");
 if (faults.boostFault) server.log("Boost Fault reported");
 
 switch(faults.chrgFault) {
-  case BQ25895M_CHARGING_FAULT.NORMAL:
-    server.log("Charging OK");
-    break;
-  case BQ25895M_CHARGING_FAULT.INPUT_FAULT:
-    server.log("Charging NOT OK - Input Fault reported");
-    break;
-  case BQ25895M_CHARGING_FAULT.THERMAL_SHUTDOWN:
-    server.log("Charging NOT OK - Thermal Shutdown reported");
-    break;
-  case BQ25895M_CHARGING_FAULT.CHARGE_SAFETY_TIMER_EXPIRATION:
-    server.log("Charging NOT OK - Safety Timer expired");
-    break;
+    case BQ25895M_CHARGING_FAULT.NORMAL:
+        server.log("Charging OK");
+        break;
+    case BQ25895M_CHARGING_FAULT.INPUT_FAULT:
+        server.log("Charging NOT OK - Input Fault reported");
+        break;
+    case BQ25895M_CHARGING_FAULT.THERMAL_SHUTDOWN:
+        server.log("Charging NOT OK - Thermal Shutdown reported");
+        break;
+    case BQ25895M_CHARGING_FAULT.CHARGE_SAFETY_TIMER_EXPIRATION:
+        server.log("Charging NOT OK - Safety Timer expired");
+        break;
 }
 
 if (faults.battFault) server.log("VBAT too high");
 
 switch(faults.ntcFault) {
-  case BQ25895M_NTC_FAULT.NORMAL:
-    server.log("NTC OK");
-    break;
-  case BQ25895M_NTC_FAULT.TS_COLD:
-    server.log("NTC NOT OK - TS Cold");
-    break;
-  case BQ25895M_NTC_FAULT.TS_HOT:
-    server.log("NTC NOT OK - TS Hot");
-    break;
+    case BQ25895M_NTC_FAULT.NORMAL:
+        server.log("NTC OK");
+        break;
+    case BQ25895M_NTC_FAULT.TS_COLD:
+        server.log("NTC NOT OK - TS Cold");
+        break;
+    case BQ25895M_NTC_FAULT.TS_HOT:
+        server.log("NTC NOT OK - TS Hot");
+        break;
 ```
 
 ### reset() ###
