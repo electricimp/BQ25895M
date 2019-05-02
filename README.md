@@ -1,9 +1,8 @@
-
 # BQ25895M #
 
 The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch-mode battery charge and system power path management device for single-cell Li-Ion and Li-polymer batteries. It supports high input voltage fast charging and communicates over an I&sup2;C interface.
 
-**To add this library to your project, add** `#require "BQ25895M.device.lib.nut:1.0.0"` **to the top of your device code.**
+**To include this library in your project, add** `#require "BQ25895M.device.lib.nut:1.0.0"` **at the top of your device code.**
 
 ## Class Usage ##
 
@@ -11,9 +10,9 @@ The [BQ25895M](http://www.ti.com/lit/ds/symlink/bq25895m.pdf) is switch-mode bat
 
 #### Parameters ####
 
-| Parameter | Type | Required | Description |
+| Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
-| *i2cBus* | imp i2c bus object | Yes | The imp I&sup2;C bus that the BQ25895M is connected to. The I&sup2;C bus **must** be preconfigured &mdash; the library will not configure the bus |
+| *i2cBus* | imp i2c bus object | Yes | The imp I&sup2;C bus that the BQ25895M is connected to. The I&sup2;C bus **must** be pre-configured &mdash; the library will not configure the bus |
 | *i2cAddress* | Integer | No | The BQ25895M's I&sup2;C address. Default: `0xD4` |
 
 #### Return Value ####
@@ -35,23 +34,23 @@ batteryCharger <- BQ25895M(i2c);
 
 ## Class Methods ##
 
-### enable(*chargeVoltage, currentLimit[,settings]*) ###
+### enable(*chargeVoltage, currentLimit[, settings]*) ###
 
 This method configures and enables the battery charger with settings to perform a charging cycle when a battery is connected and an input source is available. It is recommended that this function is called immediately after the constructor on cold boots.
 
 #### Parameters ####
 
-| Parameter | Type | Required | Description |
+| Parameter | Type | Required? | Description |
 | --- | --- | --- | --- |
-| *chargeVoltage* | Float | Yes | The desired charge voltage in V (3.84 - 4.608V).|
-| *currentLimit* | Integer | Yes | The desired fast charge current limit in mA (0 - 5056mA).|
+| *chargeVoltage* | Float | Yes | The desired charge voltage in V. Range: 3.84-4.608V |
+| *currentLimit* | Integer | Yes | The desired fast charge current limit in mA. Range: 0-5056mA |
 | *settings* | Table | No | A table of additional settings *(see below)* |
 
 ##### Settings Table Options #####
 
-| Table Key | Value | Description |
+| Key | Type | Description |
 | --- | --- | --- |
-| *setChargeCurrentOptimizer* | *true* | Identify maximum power point without overload the input source |
+| *setChargeCurrentOptimizer* | Boolean | Identify maximum power point without overload the input source. Default: `true` |
 
 #### Return Value ####
 
@@ -60,13 +59,13 @@ Nothing.
 #### Example ####
 
 ```squirrel
-// Configure battery charger with charge voltage of 4.2V and current limit of 1000mA
+// Configure the charger with charge voltage of 4.2V and current limit of 1000mA
 batteryCharger.enable(4.2, 1000);
 ```
 
 ### disable() ###
 
-This method disables the device's charging capabilities. The battery will not charge until *enableCharging()* is called.
+This method disables the device's charging capabilities. The battery will not charge until [*enable()*](#enablechargevoltage-currentlimit-settings) is called.
 
 #### Return Value ####
 
@@ -75,9 +74,8 @@ Nothing.
 #### Example ####
 
 ```squirrel
-// Disables charging
+// Disable charging
 batteryCharger.disable();
-
 ```
 
 ### getChargeVoltage() ###
