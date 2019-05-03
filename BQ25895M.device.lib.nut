@@ -87,6 +87,17 @@ class BQ25895M {
         _i2c = i2c;
         _addr = addr;
 
+        try {
+            _disableWatchdog();
+        } catch (err) {
+            server.error("Error disabling watchdog");
+        }
+        try {
+            _setChargeVoltage(4.2);
+        } catch (err) {
+            server.error("Error setting charge voltage");
+        }
+
     }
 
     //PUBLIC METHODS
@@ -116,8 +127,6 @@ class BQ25895M {
             _setRegBit(BQ25895M_REG09, 7, 0); // disable charge current optimizer
         }
 
-        // Make sure settings don't revert to chip defaults
-        _kickWatchdog();
     }
 
     // Clear the enable charging bit, device will not charge until enableCharging() is called again
@@ -128,9 +137,6 @@ class BQ25895M {
 
         _setReg(BQ25895M_REG03, rd);
 
-        // Start kicking watchdog, since default is
-        // to enable charging
-        _kickWatchdog();
 
     }
 
@@ -288,6 +294,13 @@ class BQ25895M {
         if (_watchdogtimer != null) imp.cancelwakeup(_watchdogtimer);
         _watchdogtimer = imp.wakeup(WATCHDOG_RESET_TIME, _kickWatchdog.bindenv(this));
 
+    }
+
+    function _disableWatchdog() {
+
+        _setRegBit(BQ25895M_REG07, 5, 0);
+        _setRegBit(BQ25895M_REG07, 4, 0);
+    
     }
 
     function _convStart() {
