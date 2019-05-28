@@ -258,6 +258,21 @@ switch(faults.ntcFault) {
         break;
 ```
 
+### disableWatchdog() ###
+
+This method disables the watchdog timer. This allows the imp to sleep without the charger returning to default parameters.
+
+#### Return Value ####
+
+Nothing.
+
+#### Example ####
+
+```squirrel
+// Disable the configuration watchdog
+batteryCharger.disableWatchdog();
+```
+
 ### reset() ###
 
 This method provides a software reset which clears all of the BQ25895M's register settings.

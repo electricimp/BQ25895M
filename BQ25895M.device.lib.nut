@@ -224,6 +224,15 @@ class BQ25895M {
 
     }
 
+    // Disable watchdog (keeps settings in device sleep)
+    function disableWatchdog() {
+
+        _setRegBit(BQ25895M_REG07, 5, 0);
+        _setRegBit(BQ25895M_REG07, 4, 0);
+    
+    }
+
+
     // Restore default device settings
     function reset() {
 
