@@ -73,7 +73,7 @@ enum BQ25895M_NTC_FAULT{
 
 class BQ25895M {
 
-    static VERSION = "1.0.0";
+    static VERSION = "1.1.0";
 
     // I2C information
     _i2c = null;
