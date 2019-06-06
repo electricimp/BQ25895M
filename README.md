@@ -51,6 +51,7 @@ This method configures and enables the battery charger with settings to perform 
 | Key | Type | Description |
 | --- | --- | --- |
 | *setChargeCurrentOptimizer* | Boolean | Identify maximum power point without overload the input source. Default: `true` |
+| *setChargeTerminationCurrentLimit*	| Integer | Charge cycle is terminated when battery voltage is above recharge threshold and the current is below *termination current*. Range:  64-1024mA |
 
 #### Return Value ####
 
@@ -59,8 +60,11 @@ Nothing.
 #### Example ####
 
 ```squirrel
-// Configure the charger with charge voltage of 4.2V and current limit of 1000mA
-batteryCharger.enable(4.2, 1000);
+// Configure battery charger with charge voltage of 4.2V and current limit of 1000mA.
+// Enable charge current optimizer and set charge termination current lim to 128
+
+settings <- {"chargeCurrentOptimizer":true, "setChargeTerminationCurrentLimit":128};
+batteryCharger.enable(4.2, 1000, settings);
 ```
 
 ### disable() ###
@@ -151,6 +155,65 @@ Integer &mdash; The charging current in mA.
 ```squirrel
 local current = batteryCharger.getChargingCurrent();
 server.log("Current (charging): " + current + "mA");
+```
+### getInputStatus() ###
+This method returns the type of power source connected to the charger input as well as the resulting input current limit.
+
+#### Return Value ####
+Table &mdash; An input status report *(see below)*
+
+| Key| Type | Description |
+| --- | --- | --- |
+| *vbusStatus* | integer| Possible input states, see table below for details |
+| *inputCurrentLimit* | integer| 100-3250mA |
+
+#### VBUS Status ####
+
+| VBUS Status Constant | Value |
+| --- | --- |
+| *BQ25895M_VBUS_STATUS.NO_INPUT* | 0x00 |
+| *BQ25895M_VBUS_STATUS.USB_HOST_SDP* | 0x20 |
+| *BQ25895M_VBUS_STATUS.USB_CDP* | 0x40 |
+| *BQ25895M_VBUS_STATUS.USB_DCP* | 0x60 |
+| *BQ25895M_VBUS_STATUS.ADJUSTABLE_HV_DCP* | 0x80 |
+| *BQ25895M_VBUS_STATUS.UNKNOWN_ADAPTER* | 0xA0 |
+| *BQ25895M_VBUS_STATUS.NON_STANDARD_ADAPTER* | 0xC0 |
+| *BQ25895M_VBUS_STATUS.OTG* | 0xE0 |
+
+#### Example ####
+
+```squirrel
+local inputStatus = batteryCharger.getInputStatus();
+
+    switch(inputStatus.vbusStatus) {
+      case BQ25895M_VBUS_STATUS.NO_INPUT:
+        server.log("No Input");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_HOST_SDP:
+        server.log("USB Host SDP");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_CDP:
+        server.log("USB CDP");
+        break;
+      case BQ25895M_VBUS_STATUS.USB_DCP:
+        server.log("USB DCP");
+        break;
+      case BQ25895M_VBUS_STATUS.ADJUSTABLE_HV_DCP:
+        server.log("Adjustable High Voltage DCP");
+        break;
+          case BQ25895M_VBUS_STATUS.UNKNOWN_ADAPTER:
+        server.log("Unknown Adapter");
+        break;
+      case BQ25895M_VBUS_STATUS.NON_STANDARD_ADAPTER:
+        server.log("Non Standard Adapter");
+        break;
+      case BQ25895M_VBUS_STATUS.OTG:
+        server.log("OTG");
+        break;
+    }
+
+server.log("Input Current Limit = " + inputStatus.inputCurrentLimit);
+
 ```
 
 ### getChargingStatus() ###
