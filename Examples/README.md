@@ -1,9 +1,8 @@
 # Setting Up The BQ25895M For Your Battery #
 
-
 ## Important Battery Parameters ##
 
-In order to set up the BQ25895M properly there are two important parameters that you need know for your specific battery: the charging voltage and the charging current. 
+In order to set up the BQ25895M properly there are two important parameters that you need know for your specific battery: the charging voltage and the charging current limit. 
 
 ## Finding Charging Parameters ##
 
@@ -11,14 +10,16 @@ In this example we will be looking at this [3.7V 2000mAh]( https://www.adafruit.
 
 In Section 3, Form 1 there is a table describing the battery's rated performance characteristics. Looking at the fourth row of the table, we can see the charging voltage is 4.2V. Row six shows the quick charge current is 1CA. The C represents the battery capacity. Row 1 shows that the capacity is 2000mAh. This means that the quick charge current = 1 * 2000 mA = 2000mA.
 
-It is very important to find the correct values for these two parameters as exceeding them can damage your battery.
+It is very important to find the correct values for these two parameters as exceeding them can damage your battery. 
+
+**Note:** The default settings for the BQ25895M are not compatible with this example battery. Therefore it is very important to enable the battery with the correct settings as soon as the device boots. 
 
 ## Example ##
 
 ```squirrel
-#require "BQ25895M.device.lib.nut:1.0.0"
+#require "BQ25895M.device.lib.nut:2.0.0"
 
-// Choose an impC001 I2C bus and confiure it
+// Choose an impC001 I2C bus and configure it
 local i2c = hardware.i2cKL;
 i2c.configure(CLOCK_SPEED_400_KHZ);
 
@@ -26,5 +27,27 @@ i2c.configure(CLOCK_SPEED_400_KHZ);
 batteryCharger <- BQ25895M(i2c);
 
 // Configure the charger to charge at 4.2V to a maximum of 2000mA
-batteryCharger.enable(4.2, 2000); 
+settings <- {
+    "voltage" : 4.2, 
+    "current" : 2000
+}
+
+batteryCharger.enable(settings); 
+```
+
+The example battery is compatible with the default settings for the BQ25895, so it would be acceptable to use the *BQ25895Defaults* flag when enabling this battery.
+
+```squirrel
+#require "BQ25895M.device.lib.nut:2.0.0"
+
+// Choose an impC001 I2C bus and configure it
+local i2c = hardware.i2cKL;
+i2c.configure(CLOCK_SPEED_400_KHZ);
+
+// Instantiate a BQ25895M object
+batteryCharger <- BQ25895M(i2c);
+
+// Configure the charger to charge at 4.208V to a maximum of 2048mA
+settings <- { "BQ25895Defaults" : true };
+batteryCharger.enable(settings); 
 ```
