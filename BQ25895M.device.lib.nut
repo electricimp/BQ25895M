@@ -67,10 +67,10 @@ enum BQ25895M_CHARGING_STATUS {
 
 // For CHGR_FAULT in getChargingFaults() output
 enum BQ25895M_CHARGING_FAULT {
-    NORMAL,                        // 0
-    INPUT_FAULT,                   // 1
-    THERMAL_SHUTDOWN,              // 2
-    CHARGE_SAFETY_TIMER_EXPIRATION // 3
+    NORMAL                         = 0x00,
+    INPUT_FAULT                    = 0x10,
+    THERMAL_SHUTDOWN               = 0x20, 
+    CHARGE_SAFETY_TIMER_EXPIRATION = 0x30
 }
 
 // For NTC_FAULT in getChargingFaults() output
@@ -120,9 +120,9 @@ class BQ25895M {
             current = BQ25895_M_SHARED_DEFAULTS.CRG_CURR;
             // Set High Voltage DCP and Max Charge Adapter settings
             _setReg(BQ25895M_REG02, BQ25895_DEFUALT_SETTINGS.REG02_DEFAULTS);
-        } else if ("voltage" in settings && "current" in settings) {
-            voltage = settings.voltage;
-            current = settings.current;
+        } else {
+            if ("voltage" in settings) voltage = settings.voltage;
+            if ("current" in settings) current = settings.current;
         }
 
         // Disable Watchdog, so settings remain even through sleep cycles
@@ -143,7 +143,7 @@ class BQ25895M {
             _setRegBit(BQ25895M_REG09, 7, 0); 
         }
     
-        if (("setChargeTerminationCurrentLimit" in settings) && settings.setChargeTerminationCurrentLimit) {
+        if ("setChargeTerminationCurrentLimit" in settings) {
             _setChargeTerminationCurrent(settings.setChargeTerminationCurrentLimit);        
         } else {
             // Set default charge termination current limit of 256mA
@@ -205,7 +205,7 @@ class BQ25895M {
 
         // 2304mV must be added as the offset, 20mV is the resolution
         local sysV = (2304 + (20 * (rd & 0x7f))); 
-        return sysV;
+        return sysV / 1000.0;
     }
     
     // Returns the charging mode and input current limit in a table
@@ -255,11 +255,11 @@ class BQ25895M {
         };
 
         local rd = _getReg(BQ25895M_REG0C);
-        chargerFaults.watchdogFault <- rd >> 7;
-        chargerFaults.boostFault <- rd >> 6;
+        chargerFaults.watchdogFault <- (rd & 0x80) == 0x80;
+        chargerFaults.boostFault <- (rd & 0x40) == 0x40;
         // Normal, input fault, thermal shutdown, charge safety timer expiration
         chargerFaults.chrgFault <- rd & 0x30; 
-        chargerFaults.battFault <- rd >> 3;
+        chargerFaults.battFault <- (rd & 0x08) == 0x08;
         // Normal, TS cold, TS hot 
         // For compatibility between BQ25895 & BQ25895M drop the top bit, it is not needed to determine NTC fault
         chargerFaults.ntcFault <- rd & 0x03; 
@@ -326,7 +326,7 @@ class BQ25895M {
         if (iterm < 64) { 
             // charge current must be greater than 0
             iterm = 64;
-        } else if (iterm >= 1024) { 
+        } else if (iterm > 1024) { 
             // max charge current from device datasheet
             iterm = 1024;
         }
